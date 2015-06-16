@@ -219,42 +219,6 @@ public class Logger {
 			}
 			loggerSetting.printStream.println(line);
 		}
-		/*
-		if ( loggerSettings.enablePrefix ){
-			//Get each line
-			String[] lines = message.split("\\r?\\n");
-			message = "";
-			
-			for ( int i = 0 ; i < lines.length ; i++ ){
-				lines[i] = "["+loggerSettings.name+"] "+lines[i];
-				message += lines[i];
-			}
-			
-			
-		}
-		loggerSettings.printStream.println(message);
-		*/
-		/*
-		String text2 = text;
-		text2 += " ";
-		String spacer = "        ";
-		boolean firstline = true;
-		while( text.length() > MAX_LINE_LENGTH ){
-			String tmp = text2.substring(0, MAX_LINE_LENGTH);
-			int index = tmp.lastIndexOf(' ');
-			String line = text2.substring(0, index);
-			if ( !firstline ){
-				line = spacer+line;
-			}
-			firstline = false;
-			log.out.println(line);
-			text2 = text2.substring(index);
-		}
-		if ( !firstline ){
-			text2 = spacer+text2;
-		}
-		log.out.println(text2);
-		*/
 	}
 	
 	//#################################################################
@@ -283,39 +247,4 @@ public class Logger {
 			this.name = name;
 		}
 	}
-	
-	/*
-	public static void log(String logger, final String text){
-		if ( Logger.log == null ){
-			createLogger();
-		}
-		Thread thread = new Thread(new Runnable(){
-
-			@Override
-			public void run() {
-				String text2 = text;
-				text2 += " ";
-				String spacer = "        ";
-				boolean firstline = true;
-				while( text.length() > MAX_LINE_LENGTH ){
-					String tmp = text2.substring(0, MAX_LINE_LENGTH);
-					int index = tmp.lastIndexOf(' ');
-					String line = text2.substring(0, index);
-					if ( !firstline ){
-						line = spacer+line;
-					}
-					firstline = false;
-					log.out.println(line);
-					text2 = text2.substring(index);
-				}
-				if ( !firstline ){
-					text2 = spacer+text2;
-				}
-				log.out.println(text2);
-			}
-			
-		});
-		thread.start();
-	}
-	*/
 }
