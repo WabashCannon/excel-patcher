@@ -44,7 +44,7 @@ public class SheetData {
 	
 	public int getColumnIndex(String header){
 		if ( !headers.containsKey(header) ){
-			Logger.logCrash(header+" is not a column header. Did you forget to "
+			Logger.log("Error", header+" is not a column header. Did you forget to "
 					+"put quotes around a constant in the format file?");
 		}
 		assert( headers.containsKey(header) );
@@ -86,7 +86,7 @@ public class SheetData {
 			}
 			columnCount++;
 		}
-		Logger.logWarningVerbose("Stopoped searching for headers after column "+ExcelUtils.intToLetter(columnCount));
+		Logger.logVerbose("Warning: Stopoped searching for headers after column "+ExcelUtils.intToLetter(columnCount));
 	}
 	
 	/** Maximum number of consecutive blank rows the program can find before determining there are no more loans */
@@ -114,7 +114,7 @@ public class SheetData {
 				emptyRowCount++;
 			} else {
 				for ( int i = 0 ; i < emptyRowCount ; i++ ){
-					Logger.logWarningVerbose("Found an empty row in the input file at row number "
+					Logger.logVerbose("Warning: Found an empty row in the input file at row number "
 							+(rowNum-emptyRowCount+i)+".");
 				}
 				emptyRowCount = 0;
@@ -123,6 +123,6 @@ public class SheetData {
 			rowNum++;
 		}
 		
-		Logger.logWarningVerbose("Stopped searching for loans after row "+(rowNum-2));
+		Logger.logVerbose("Warning: Stopped searching for loans after row "+(rowNum-2));
 	}
 }

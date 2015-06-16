@@ -18,7 +18,7 @@ public class FormatData {
 		try{
 			scanner = new Scanner( new FileInputStream(formatFilename) );
 		} catch ( FileNotFoundException e ){
-			Logger.logCrash("Format file was not found at location "+formatFilename);
+			Logger.log("Error", "Format file was not found at location "+formatFilename);
 		}
 		
 		while ( scanner.hasNextLine() ){
@@ -32,7 +32,7 @@ public class FormatData {
 				loadColumnFormat(scanner, columnTitle);
 			} else {
 				Logger.log("Expected a column declaration in format file but recieved ");
-				Logger.logCrash(line);
+				Logger.log("Error", line);
 			}
 		}
 	}
@@ -58,7 +58,7 @@ public class FormatData {
 				return columnFormat;
 			}
 		}
-		Logger.logWarningVerbose("Could not find column with title "+columnTitle+" in format data");
+		Logger.logVerbose("Warning: Could not find column with title "+columnTitle+" in format data");
 		return null;
 	}
 	
@@ -72,7 +72,7 @@ public class FormatData {
 	
 	public Set<String> getAllDependencies(){
 		if ( finalDependencies == null ){
-			Logger.logCrash("Tried to read all dependencies before they were compiled");
+			Logger.log("Error", "Tried to read all dependencies before they were compiled");
 		}
 		return finalDependencies;
 	}
@@ -110,7 +110,7 @@ public class FormatData {
 			//Create specification from line and add to columnFormat
 			while ( line.endsWith(";")){//multi-line specification
 				if ( !scanner.hasNextLine() ){
-					Logger.logCrash("Unexpecet end of format file after \";\"");
+					Logger.log("Error", "Unexpecet end of format file after \";\"");
 				} else {
 					String tmp = scanner.nextLine();
 					if ( shouldIgnore(tmp) ){ continue; }
@@ -126,7 +126,7 @@ public class FormatData {
 	private void addColumnFormat(ColumnFormatData columnFormat){
 		for ( ColumnFormatData data : columnFormats ){
 			if ( data.getTitle().equals(columnFormat.getTitle()) ){
-				Logger.logCrash("Found duplicate decleration of column "+columnFormat.getTitle()+" in format file");
+				Logger.log("Error", "Found duplicate decleration of column "+columnFormat.getTitle()+" in format file");
 			}
 		}
 		//System.out.println(columnFormat.toString());

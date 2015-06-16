@@ -1,17 +1,294 @@
 package utils;
 import java.io.PrintStream;
+import java.util.HashMap;
 
 public class Logger {
-	private static Logger log;
-	static final int MAX_LINE_LENGTH = 2000;
-	boolean verbose = false;
-	PrintStream out = System.out;
+	/** Potential verbosity settings */
+	public enum LogLevel{ NONE, NORMAL, VERBOSE }
+	/** Map containing the loggers. Keys are string identifiers */
+	private static HashMap<String, LoggerSetting> loggerSettings = new HashMap<String, LoggerSetting>();
+	/** Default logger implemented for more convenient logging */
+	private static String defaultLoggerSettingName = "Default";
 	
-	public static void log(final String text){
+	//#################################################################
+	//### Public General Methods
+	//#################################################################
+	/**
+	 * Logs the given message using the default logger settings.
+	 * 
+	 * @param message to log
+	 */
+	public static void log(String message){
+		log(defaultLoggerSettingName, message);
+	}
+	
+	/**
+	 * Logs the given message to the specified logger settings.
+	 * 
+	 * @param loggerName
+	 * @param message
+	 */
+	public static void log(String loggerName, String message){
+		LoggerSetting setting = getSetting(loggerName);
+		log(setting, message);
+	}
+	
+	/**
+	 * Logs the message to the default logger settings if they have a verbosity level
+	 * of LogLevel.VERBOSE
+	 * @param message
+	 */
+	public static void logVerbose(String message){
+		logVerbose(defaultLoggerSettingName, message);
+	}
+	
+	/**
+	 * Logs the message to the specified logger settings if they have a verbosity level
+	 * of LogLevel.VERBOSE
+	 * @param message
+	 */
+	public static void logVerbose(String loggerName, String message){
+		LoggerSetting setting = getSetting(loggerName);
+		if ( setting.verbosity == LogLevel.VERBOSE ){
+			log(setting, "[VERBOSE] "+message);
+		}
+	}
+
+	/**
+	 * Sets the default logger to the specified logger if it exists. If it does not
+	 * it creates a logger with the given name and sets it as the default.
+	 * @param loggerName
+	 */
+	public static void setDefaultLogger(String loggerName){
+		defaultLoggerSettingName = loggerName;
+		
+	}
+	
+	//#################################################################
+	//### Wrapper methods for getting/setting logger settings
+	//#################################################################
+	public static String getDefaultLoggerName(){
+		return defaultLoggerSettingName;
+	}
+	
+	/**
+	 * Sets the given logger's PrintStream
+	 * @param loggerName
+	 * @param ps
+	 */
+	public static void setPrintStream(String loggerName, PrintStream ps){
+		LoggerSetting setting = getSetting(loggerName);
+		setting.printStream = ps;
+	}
+	
+	/**
+	 * Returns the specified logger's current PrintStream
+	 * @param loggerName
+	 * @return the logger's PrintStream
+	 */
+	public static PrintStream getPrintStream(String loggerName){
+		return getSetting(loggerName).printStream;
+	}
+	
+	/**
+	 * Sets the given logger's verbosity
+	 * @param loggerName
+	 * @param verbosity
+	 */
+	public static void setVerbosity(String loggerName, LogLevel verbosity){
+		LoggerSetting setting = getSetting(loggerName);
+		setting.verbosity = verbosity;
+	}
+	
+	/**
+	 * Returns the specified logger's verbosity
+	 * @param loggerName
+	 * @return the logger's verbosity
+	 */
+	public static LogLevel getVerbosity(String loggerName){
+		return getSetting(loggerName).verbosity;
+	}
+	
+	/**
+	 * Sets the given logger's maximum characters per line
+	 * @param loggerName
+	 * @param maxLineLength
+	 */
+	public static void setMaxLineLength(String loggerName, int maxLineLength){
+		LoggerSetting setting = getSetting(loggerName);
+		setting.maxLineLength = maxLineLength;
+	}
+	
+	/**
+	 * Return's the specified logger's max characters per line
+	 * @param loggerName
+	 * @return the logger's max characters per line
+	 */
+	public static int getMaxLineLength(String loggerName){
+		return getSetting(loggerName).maxLineLength;
+	}
+	
+	/**
+	 * Sets whether the given logger should print it's name as a prefix on each message
+	 * @param loggerName
+	 * @param enablePrefix
+	 */
+	public static void setEnablePrefix(String loggerName, boolean enablePrefix){
+		LoggerSetting setting = getSetting(loggerName);
+		setting.enablePrefix = enablePrefix;
+	}
+	
+	/**
+	 * Returns if the specified logger prints its name before each line
+	 * @param loggerName
+	 * @return if the logger prints its own name as a prefix
+	 */
+	public static boolean isPrefixEnabled(String loggerName){
+		return getSetting(loggerName).enablePrefix;
+	}
+		
+		
+	//#################################################################
+	//### Private Methods
+	//#################################################################
+	/**
+	 * Creates a new logger setting
+	 * @param string
+	 */
+	private static void createSetting(String loggerName) {
+		LoggerSetting setting = new LoggerSetting(loggerName);
+		loggerSettings.put(loggerName, setting);
+	}
+	
+	/**
+	 * Returns the settings for the given loggerName. Creates default ones
+	 * if they do not already exist.
+	 * 
+	 * @param loggerName
+	 */
+	private static LoggerSetting getSetting(String loggerName){
+		if ( !loggerSettings.containsKey(loggerName) ){
+			createSetting(loggerName);
+		}
+		
+		return loggerSettings.get(loggerName);
+	}
+
+	/**
+	 * Internal method for actually logging the messages.
+	 * 
+	 * @param loggerSetting to use when logging
+	 * @param message to log
+	 */
+	@Deprecated
+	private static void log(LoggerSetting loggerSetting, String message){
+		//Split the message into lines
+		String[] lines = message.split("\\r?\\n");
+		
+		//If we need to prepend prefix for first line
+		if ( loggerSetting.enablePrefix ){
+			lines[0] = "["+loggerSetting.name+"] " + lines[0];
+			for ( int i = 1 ; i < lines.length ; i++ ){
+				lines[i] = "   "+lines[i];
+			}
+		}
+		
+		//for each line, print with word wrap
+		for ( String line : lines ){
+			while ( line.length() > loggerSetting.maxLineLength ){
+				//Find the index of the last space prior to character maxLineLength
+				String tmp = line.substring(0, loggerSetting.maxLineLength);
+				int lastSpaceIndex = tmp.lastIndexOf(' ');
+				
+				//If no space, we wrap at exactly maxLineLength
+				if ( lastSpaceIndex == -1 ){
+					String toPrint = line.substring(0,loggerSetting.maxLineLength);
+					loggerSetting.printStream.println(toPrint);
+					line = line.substring(loggerSetting.maxLineLength);
+				} else {
+					//Otherwise we wrap at the last space
+					String toPrint = line.substring(0, lastSpaceIndex);
+					loggerSetting.printStream.println(toPrint);
+					line = line.substring(lastSpaceIndex);
+				}
+				
+				//For wrapped text, tab indent if prefix is enabled
+				if ( loggerSetting.enablePrefix ){
+					line = "   "+line;
+				}
+			}
+			loggerSetting.printStream.println(line);
+		}
+		/*
+		if ( loggerSettings.enablePrefix ){
+			//Get each line
+			String[] lines = message.split("\\r?\\n");
+			message = "";
+			
+			for ( int i = 0 ; i < lines.length ; i++ ){
+				lines[i] = "["+loggerSettings.name+"] "+lines[i];
+				message += lines[i];
+			}
+			
+			
+		}
+		loggerSettings.printStream.println(message);
+		*/
+		/*
+		String text2 = text;
+		text2 += " ";
+		String spacer = "        ";
+		boolean firstline = true;
+		while( text.length() > MAX_LINE_LENGTH ){
+			String tmp = text2.substring(0, MAX_LINE_LENGTH);
+			int index = tmp.lastIndexOf(' ');
+			String line = text2.substring(0, index);
+			if ( !firstline ){
+				line = spacer+line;
+			}
+			firstline = false;
+			log.out.println(line);
+			text2 = text2.substring(index);
+		}
+		if ( !firstline ){
+			text2 = spacer+text2;
+		}
+		log.out.println(text2);
+		*/
+	}
+	
+	//#################################################################
+	//### Small struct for each logger's settings
+	//#################################################################
+	/**
+	 * Private class used to store settings along with each logger.
+	 * 
+	 * @author Ashton Dyer
+	 */
+	private static class LoggerSetting{
+		private static final int DEFAULT_MAX_LINE_LENGTH = 1000;
+		
+		/** The name of the logger */
+		private String name;
+		/** PrintStream to print messages to */
+		public PrintStream printStream = System.out;
+		/** This logger's max characters per line */
+		public int maxLineLength = DEFAULT_MAX_LINE_LENGTH;
+		/** If this logger should prepend messages with it's name */
+		public boolean enablePrefix = false;
+		/** If messages logged using logVerbose should be printed */
+		public LogLevel verbosity = LogLevel.NORMAL;
+		
+		public LoggerSetting(String name){
+			this.name = name;
+		}
+	}
+	
+	/*
+	public static void log(String logger, final String text){
 		if ( Logger.log == null ){
 			createLogger();
 		}
-		
 		Thread thread = new Thread(new Runnable(){
 
 			@Override
@@ -40,92 +317,5 @@ public class Logger {
 		});
 		thread.start();
 	}
-	
-	public static void logVerbose(String text){
-		if ( Logger.log == null ){
-			createLogger();
-		}
-		if ( Logger.log.verbose ){
-			Logger.log("VERBOSE: "+text);
-		}
-	}
-	
-	public static void logWarning(String text){
-		Logger.log("WARNING: "+text);
-	}
-	
-	public static void logWarningVerbose(String text){
-		if ( Logger.log != null && Logger.log.verbose ){
-			Logger.log("VERBOSE: WARNING: "+text);
-		}
-	}
-	
-	public static void logCrash(String text){
-		Logger.log("Fatal Error: "+text);
-		Logger.log("Quitting");
-		//System.exit(1);
-	}
-	
-	/**
-	 * Constructs the logger and has it print to a text file located
-	 * at the path outfile, with verbosity setting of verbose
-	 * @param outfile the path of the text file to print to
-	 * @param verbose if the logger should print verbose output
-	 */
-	@Deprecated //TODO: implement
-	public Logger(String outfile, boolean verbose){
-		//TODO: implement writing to a printstream at outfile
-		init(verbose);
-	}
-	
-	public static void setPrintStream(PrintStream ps){
-		if ( log == null ){
-			createLogger();
-		}
-		log.out = ps;
-	}
-	
-	public static boolean getVerbosity(){
-		if ( log == null ){
-			createLogger();
-		}
-		return log.verbose;
-	}
-	
-	public static void setVerbosity(boolean verbosity){
-		if ( log == null ){
-			createLogger();
-		}
-		log.verbose = verbosity;
-	}
-	
-	/**
-	 * Constructs the logger and has it print to System.out with the
-	 * verbosity setting given
-	 * @param verbose is the logger should print verbose output
-	 */
-	public Logger(boolean verbose){
-		init(verbose);
-	}
-	
-	/**
-	 * Initializes the logger and enforces it is a singleton
-	 * Should only be called from the constructor
-	 * @param verbose
-	 */
-	private void init(boolean verbose){
-		if ( Logger.log != null ){
-			System.err.println("Logger is a singleton class");
-			System.exit(1);
-		}
-		this.verbose = verbose;
-		Logger.log = this;
-	}
-	
-	private static void createLogger(){
-		if ( Logger.log == null ){
-			Logger.log = new Logger(true);
-			Logger.logVerbose("Initializing default logger");
-		}
-	}
+	*/
 }

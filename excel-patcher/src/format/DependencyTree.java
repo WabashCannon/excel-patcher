@@ -26,7 +26,7 @@ public class DependencyTree {
     	boolean addedAChild = false;
     	for ( String newChildName : newChildren ){
     		if ( newChildName.equals(root.name) ){
-    			Logger.logCrash("Cyclic dependency found");
+    			Logger.log("Error", "Cyclic dependency found");
     		}
     		if ( findChildNode(newChildName, root) == null ){
     			Node newChild = new Node();

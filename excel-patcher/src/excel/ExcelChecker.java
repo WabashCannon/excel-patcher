@@ -42,7 +42,7 @@ public class ExcelChecker {
 	public ExcelChecker(Workbook wb, FormatData data){
 		/*
 		if ( ExcelChecker.checker != null ){
-			Logger.logCrash("ExcelChecker is a singleton class, cannot instantiate twice");
+			Logger.log("Error", "ExcelChecker is a singleton class, cannot instantiate twice");
 		}
 		*/
 		ExcelChecker.checker = this;
@@ -75,14 +75,14 @@ public class ExcelChecker {
 	 */
 	private void checkFormatData(){
 		if ( sheetData.getNumHeaders() != formatData.getNumColumns() ){
-			Logger.logWarning("Format file specified "+formatData.getNumColumns()
+			Logger.log("Warning: Format file specified "+formatData.getNumColumns()
 					+" columns to check, but "+sheetData.getNumHeaders()
 					+" headers were found on the input sheet. I'll only "
 					+"work on the columns from the format file.");
 		}
 		for ( String title : formatData.getColumnTitles() ){
 			if ( !sheetData.hasHeader(title) ){
-				Logger.logWarning("Found column header of "+title+" in the format"
+				Logger.log("Warning: Found column header of "+title+" in the format"
 						+" file but failed to find it in the input sheet. Maybe a typo?"
 						+" I will not work on this format file column.");
 				formatData.removeColumn(title);
@@ -96,7 +96,7 @@ public class ExcelChecker {
 			
 			for ( String dep : deps ){
 				if ( !sheetData.hasHeader(dep) ){
-					Logger.logCrash("Format data for column "+title+" depended on column "
+					Logger.log("Error", "Format data for column "+title+" depended on column "
 							+dep+" but "+dep+" was not found in the input file");
 				}
 			}
@@ -110,7 +110,7 @@ public class ExcelChecker {
 			/*
 			for ( String dep : deps ){
 				if ( !formatData.getColumnTitles().contains(dep) ){
-					Logger.logCrash("The format file depends on columns that aren't "
+					Logger.log("Error", "The format file depends on columns that aren't "
 							+"declared in it");
 				}
 			}
@@ -265,7 +265,7 @@ public class ExcelChecker {
 			}
 		}
 		if ( !completeSuccess ){
-			Logger.logWarning("Failed to resolve core dependencies on row "+row.getRowNum()
+			Logger.log("Warning: Failed to resolve core dependencies on row "+row.getRowNum()
 					+". Try filling the cells in these columns and running this again: ");
 			for ( String header : dependencies ){
 				//Collect some useful variables
@@ -587,7 +587,7 @@ public class ExcelChecker {
 	// ####################################################
 	public Cell getColumnForCurrentCellRow(String title){
 		if ( currentCell == null ){
-			Logger.logWarning("Attempted to query currentCell when it was null");
+			Logger.log("Warning: Attempted to query currentCell when it was null");
 			return null;
 		}
 		int columnIndex =  sheetData.getColumnIndex(title);

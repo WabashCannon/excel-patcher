@@ -195,7 +195,7 @@ public class ExcelUtils {
 		for ( int i = 0 ; i < letter.length() ; i++ ){
 			char ch = letter.charAt(i);
 			if ( !Character.isLetter(ch) ){
-				Logger.logCrash("Tried to convert a non-alphabetic string to an int");
+				Logger.log("Error", "Tried to convert a non-alphabetic string to an int");
 			}
 			int index = (int)ch - ALPHABET_SHIFT_INDEX;
 			int power = letter.length() - i - 1;

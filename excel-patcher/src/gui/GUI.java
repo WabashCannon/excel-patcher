@@ -42,7 +42,10 @@ public class GUI extends JFrame {
 		ConsolePanel cPanel = new ConsolePanel();
 		this.add(cPanel, BorderLayout.CENTER);
 		
-		Logger.setPrintStream( cPanel.getPrintStream() );
+		//Set the loggers' print streams to the GUI console
+		String defaultLogger = Logger.getDefaultLoggerName();
+		Logger.setPrintStream( defaultLogger, cPanel.getPrintStream() );
+		Logger.setPrintStream( "Error", cPanel.getPrintStream() );
 	}
 	
 	private void createMenuBar(){
@@ -140,7 +143,8 @@ public class GUI extends JFrame {
 			
 			settingsMenu.add(menuItem);
 		}
-		
+		//TODO: Implement verbose logging wisely
+		/*
 		final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem("Verbose Logging", Logger.getVerbosity());
 		menuItem.addActionListener( new ActionListener(){
 
@@ -153,7 +157,7 @@ public class GUI extends JFrame {
 		});
 		
 		settingsMenu.add(menuItem);
-		
+		*/
 		//Add settings menu to menubar
 		menubar.add(settingsMenu);
 		
@@ -176,8 +180,10 @@ public class GUI extends JFrame {
 	}
 	
 	public GUI(){
-		//new Logger(false);
-		new Logger(false);
+		//TODO: Init logger
+		String defaultLogger = Logger.getDefaultLoggerName();
+		Logger.setEnablePrefix(defaultLogger, true);
+		Logger.setEnablePrefix("Error", true);
 		
 		gui = this;
 		

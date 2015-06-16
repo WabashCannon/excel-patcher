@@ -34,7 +34,7 @@ public class DataType {
 		} else if ( dataTypeName.equals("Decimal") ){
 			readDecimalInput(text);
 		} else if ( dataTypeName == null ){
-			Logger.logCrash("When loading format file, invalid data type of "+text+" was declared");
+			Logger.log("Error", "When loading format file, invalid data type of "+text+" was declared");
 		}
 	}
 	
@@ -54,26 +54,26 @@ public class DataType {
 		//Get first value in range
 		String aString = splitRange[0].trim();
 		if ( !aString.startsWith("(") ){
-			Logger.logCrash("Decimal range in format file must begin with \"(\"");
+			Logger.log("Error", "Decimal range in format file must begin with \"(\"");
 		}
 		aString = aString.substring(1).trim();
 		//safe cast aString to int
 		try {
 			totalLength = Integer.parseInt(aString);
 		} catch (NumberFormatException e){
-			Logger.logCrash("Expected first value in Decimal range to be an integer but recieved \""+aString+"\"");
+			Logger.log("Error", "Expected first value in Decimal range to be an integer but recieved \""+aString+"\"");
 		}
 		//Get second value in range
 		String bString = splitRange[1].trim();
 		if ( !bString.endsWith(")") ){
-			Logger.logCrash("Decimal range in format file must end with \")\"");
+			Logger.log("Error", "Decimal range in format file must end with \")\"");
 		}
 		bString = bString.substring(0, bString.length()-1).trim();
 		//Safe cast bString to int
 		try {
 			decimalLength = Integer.parseInt(bString);
 		} catch (NumberFormatException e){
-			Logger.logCrash("Expected second value in Decimal range to be an integer but recieved \""+bString+"\"");
+			Logger.log("Error", "Expected second value in Decimal range to be an integer but recieved \""+bString+"\"");
 		}
 	}
 	
@@ -173,7 +173,7 @@ public class DataType {
 			String asString = String.valueOf(number);
 			String[] split = asString.split("\\.");
 			if ( split.length != 2 ){
-				Logger.logCrash("How did splitting a decimal number yeild > 2 parts: "+asString+" -> "+Arrays.toString(split));
+				Logger.log("Error", "How did splitting a decimal number yeild > 2 parts: "+asString+" -> "+Arrays.toString(split));
 			}
 			return asString.length() <= totalLength+1 && split[1].length() <=decimalLength;
 		}

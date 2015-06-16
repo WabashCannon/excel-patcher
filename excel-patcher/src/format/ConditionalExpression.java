@@ -131,7 +131,7 @@ public class ConditionalExpression {
 			if ( KeywordChecker.isLogical(nextWord) ){
 				//Check we have a one or three word expression
 				if ( conditionSource.size() != 1 && conditionSource.size() != 3 ){
-					Logger.logCrash("Expected 1 or 3 words in condition: "+conditionSource.toString());
+					Logger.log("Error", "Expected 1 or 3 words in condition: "+conditionSource.toString());
 				}
 				//We have the end of last statement and beginning of next
 				String[] conditionSourceArray = conditionSource.toArray( new String[0] );
@@ -145,7 +145,7 @@ public class ConditionalExpression {
 				conditionSource.add( nextWord );
 				//Check it isn't more than 3
 				if ( conditionSource.size() > 3 ){
-					Logger.logCrash("Found more than 3 words in condition: "+conditionSource.toString());
+					Logger.log("Error", "Found more than 3 words in condition: "+conditionSource.toString());
 				}
 			}
 		}
@@ -153,7 +153,7 @@ public class ConditionalExpression {
 		if ( !conditionSource.isEmpty() ){
 			if ( conditionSource.size() != 1 && conditionSource.size() != 3 ){
 				Logger.log("Expected 1 or 3 words in condition: "+conditionSource.toString());
-				Logger.logCrash(conditionSource.toString());
+				Logger.log("Error", conditionSource.toString());
 			}
 			//We have the end of last statement and beginning of next
 			String[] conditionSourceArray = conditionSource.toArray( new String[0] );
@@ -174,7 +174,7 @@ public class ConditionalExpression {
 			data.setValue( word );
 			word = wordsList.removeFirst();
 			if ( !KeywordChecker.isWhen(word) ){
-				Logger.logCrash("Expected keyword \"when\" to be first or second in conditional expression");
+				Logger.log("Error", "Expected keyword \"when\" to be first or second in conditional expression");
 			}
 		}
 		//Buffer for words as we work
@@ -199,7 +199,7 @@ public class ConditionalExpression {
 				for ( String tmp : currentQueue ){
 					condition += tmp+" ";
 				}
-				Logger.logCrash("Expected condition to contain 1 or 3 words recieved \""+condition+"\"");
+				Logger.log("Error", "Expected condition to contain 1 or 3 words recieved \""+condition+"\"");
 			}
 			//Add logical expression to vector
 			String[] conditionString = new String[currentQueue.size()];

@@ -21,7 +21,7 @@ public class ColumnFormatData {
 	public void addSpecification(Specification spec){
 		for ( Specification spec2 : specifications ){
 			if ( spec.getType().equals(spec2.getType()) ){
-				Logger.logCrash("Specification "+spec.getType()+" declared twice for column"+getTitle());
+				Logger.log("Error", "Specification "+spec.getType()+" declared twice for column"+getTitle());
 			}
 		}
 		specifications.add(spec);
@@ -98,7 +98,7 @@ public class ColumnFormatData {
 		if ( finalDependencies != null ){
 			return finalDependencies;
 		}
-		Logger.logCrash("Tried to fetch finalized dependencies before they were finalized");
+		Logger.log("Error", "Tried to fetch finalized dependencies before they were finalized");
 		return null;
 	}
 	
@@ -107,7 +107,7 @@ public class ColumnFormatData {
 	// ####################################################
 	private Specification getSpecification(String type){
 		if ( !KeywordChecker.containsIgnoresCase(Specification.SPECIFICATION_KEYWORDS, type) ){
-			Logger.logCrash( "Tried to get specification of type "+type
+			Logger.log("Error",  "Tried to get specification of type "+type
 					+" which is not a specification keyword");
 		}
 		for ( Specification spec : specifications){

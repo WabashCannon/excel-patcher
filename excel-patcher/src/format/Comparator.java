@@ -7,7 +7,7 @@ public class Comparator {
 		//assert( term1 != null && term2 != null && comparator != null);
 		String expressionString = term1+" "+comparator+" "+term2;
 		if ( !KeywordChecker.isComparator(comparator) ){
-			Logger.logCrash("Expected a comparator but recieved "+comparator);
+			Logger.log("Error", "Expected a comparator but recieved "+comparator);
 		}
 		if ( ( term1.isEmpty() || term2.isEmpty() )
 				&& ( KeywordChecker.isEqual(comparator) || KeywordChecker.isNot(comparator) ) ){
@@ -16,7 +16,7 @@ public class Comparator {
 		boolean oneIsNumber = isNumber(term1);
 		boolean twoIsNumber = isNumber(term2);
 		if ( oneIsNumber != twoIsNumber ){
-			Logger.logCrash("Comparator cannot compare numerical and non-numerical types: "+expressionString);
+			Logger.log("Error", "Comparator cannot compare numerical and non-numerical types: "+expressionString);
 		}
 		if ( oneIsNumber ){
 			return compareNumerics( Double.parseDouble(term1) , Double.parseDouble(term2), comparator);
@@ -31,7 +31,7 @@ public class Comparator {
 		} else if ( KeywordChecker.isNot(comparator) ){
 			return !term1.equals(term2);
 		} else {
-			Logger.logCrash("Comparator "+comparator+" is invalid for non-numeric types");
+			Logger.log("Error", "Comparator "+comparator+" is invalid for non-numeric types");
 		}
 		return false;
 	}
@@ -50,7 +50,7 @@ public class Comparator {
 		} else if (KeywordChecker.isNot(comparator) ){
 			return a != b;
 		} else {
-			Logger.logCrash("Comparator "+comparator+" is invalid for numeric types.");
+			Logger.log("Error", "Comparator "+comparator+" is invalid for numeric types.");
 		}
 		return false;
 	}

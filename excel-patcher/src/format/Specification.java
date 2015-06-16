@@ -29,7 +29,7 @@ public class Specification {
 			splitLine[i] = splitLine[i].trim();
 		}
 		if ( !SPECIFICATION_KEYWORDS.contains(splitLine[0]) ){
-			Logger.logCrash("Expected a specification keyword in format file, but found "+splitLine[0]);
+			Logger.log("Error", "Expected a specification keyword in format file, but found "+splitLine[0]);
 		}
 		//Set type
 		type = splitLine[0];
@@ -57,7 +57,7 @@ public class Specification {
 		if ( type.equals("Required") ){
 			String value = conditionalExpression.getValue();
 			if ( !KeywordChecker.isBoolean(value) ){
-				Logger.logCrash("Required specification's conditional expression returned non-boolean value: "+value
+				Logger.log("Error", "Required specification's conditional expression returned non-boolean value: "+value
 						+" for conditional expression "+conditionalExpression.toString());
 			}
 			return KeywordChecker.cleanBoolean(value);

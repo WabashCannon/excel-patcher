@@ -38,9 +38,9 @@ public class Condition {
 				stringToBoolean(expression[0]);
 			//Check other one word cases that fail
 			} else if ( KeywordChecker.isConstant(expression[0]) ){
-				Logger.logCrash("Condition statement cannot be only a constant value. Maybe you meant to leave off the quotes?");
+				Logger.log("Error", "Condition statement cannot be only a constant value. Maybe you meant to leave off the quotes?");
 			} else if ( KeywordChecker.isKeyword(expression[0]) ){
-				Logger.logCrash("Conditions statement cannot be only a keyword.");
+				Logger.log("Error", "Conditions statement cannot be only a keyword.");
 			} else {
 				//Assume it is a column name
 				dependencies.add(expression[0]);
@@ -52,7 +52,7 @@ public class Condition {
 				dependencies.add(expression[0]);
 			}
 			if ( !KeywordChecker.isComparator(expression[1]) ){
-				Logger.logCrash("Expected a comparator as second word in condition"
+				Logger.log("Error", "Expected a comparator as second word in condition"
 						+" but recieved "+expression[1]);
 			}
 			if ( !KeywordChecker.isKeyword(expression[2])  
@@ -102,7 +102,7 @@ public class Condition {
 		} else if ( KeywordChecker.isFalse(text) ){
 			return false;
 		} else {
-			Logger.logCrash("Expected either a boolean value or dependency for"
+			Logger.log("Error", "Expected either a boolean value or dependency for"
 					+" a single word conditional expression, but recieved a keyword: "+text+" in "+originalExpression);
 			return false;
 		}

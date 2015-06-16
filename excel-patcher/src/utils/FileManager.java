@@ -46,10 +46,10 @@ public class FileManager {
 			wb.write(fileOut);
 			fileOut.close();
 		} catch (FileNotFoundException e) {
-			Logger.logCrash("File not found when saving to "+filename
+			Logger.log("Error", "File not found when saving to "+filename
 					+". Error message: "+e.getMessage());
 		} catch (IOException e) {
-			Logger.logCrash("IO exception when saving to "+filename
+			Logger.log("Error", "IO exception when saving to "+filename
 					+". Error message: "+e.getMessage());
 		}
 	    
