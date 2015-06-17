@@ -98,8 +98,7 @@ public class GUI extends JFrame {
 		openManualMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				FileManager.openFile(new File("rsc/format_manual.txt"));
-				//Wrapper.getWrapper().editFormatFile();
+				FileManager.editFormatFile();
 			}
 		});
 		

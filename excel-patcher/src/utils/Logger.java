@@ -2,6 +2,12 @@ package utils;
 import java.io.PrintStream;
 import java.util.HashMap;
 
+/**
+ * This class is a static class used for global logging.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class Logger {
 	/** Potential verbosity settings */
 	public enum LogLevel{ NONE, NORMAL, VERBOSE }
@@ -9,6 +15,10 @@ public class Logger {
 	private static HashMap<String, LoggerSetting> loggerSettings = new HashMap<String, LoggerSetting>();
 	/** Default logger implemented for more convenient logging */
 	private static String defaultLoggerSettingName = "Default";
+	
+	//Suppress default constructor
+	private Logger(){
+	};
 	
 	//#################################################################
 	//### Public General Methods
