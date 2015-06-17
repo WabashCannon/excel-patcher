@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import utils.Logger;
+import excel.ExcelUtils.UrgencyLevel;
 import format.ColumnFormatData;
 import format.DataType;
 import format.DependencyTree;
@@ -216,7 +217,7 @@ public class ExcelChecker {
 			int rowNum = cell.getRow().getRowNum();
 			String columnIndex = ExcelUtils.intToLetter(cell.getColumnIndex());
 			Logger.log(columnIndex+(rowNum+1)+": "+format.getTitle()+": "+errors);
-			addCellComment(cell, errors, urgency);
+			addCellComment(cell, errors, UrgencyLevel.values()[urgency]);
 		}
 	}
 	
@@ -504,12 +505,11 @@ public class ExcelChecker {
 		assert( cell != null );
 		RichTextString autofillValue = format.getValue();
 		if ( autofillValue != null ){
-			//System.out.println(autofillValue.toString());
 			String comm = "Changed to fix a wrong value. Had value of "+ExcelUtils.getCellContentsAsString(cell);
 			
 			cell.setCellType(Cell.CELL_TYPE_BLANK);
 			cell.setCellValue( autofillValue );
-			addCellComment(cell, comm , 0);
+			addCellComment(cell, comm , UrgencyLevel.MINOR);
 			return true;
 		} else {
 			return false;
@@ -527,7 +527,9 @@ public class ExcelChecker {
 			if ( deleteIfNotRequired && !ExcelUtils.isCellEmpty(cell) ){
 				String oldValue = ExcelUtils.getCellContentsAsString(cell);
 				cell.setCellValue("");
-				addCellComment(cell, "Deleted content since not required. Value was "+oldValue, 0);
+				addCellComment(cell, 
+						"Deleted content since not required. Value was "+oldValue, 
+						UrgencyLevel.MINOR);
 			}
 			return true;
 		}
@@ -550,7 +552,6 @@ public class ExcelChecker {
 	}
 	
 	private boolean checkDataType(Cell cell, ColumnFormatData format){
-		//System.out.println( format.getTitle() + " : " + ExcelUtils.getCellContentsAsString(cell));
 		DataType dataType = format.getType();
 		if ( dataType == null ){
 			return true;
@@ -564,7 +565,8 @@ public class ExcelChecker {
 					cell.setCellType(Cell.CELL_TYPE_BLANK);
 					cell.setCellValue(newContent);
 					goodType = dataType.checkCell(cell);
-					addCellComment(cell, "Changed to try and fix data type.", 0);
+					addCellComment(cell, "Changed to try and fix data type.", 
+							UrgencyLevel.MINOR);
 				}
 			}
 			return goodType;
@@ -602,7 +604,7 @@ public class ExcelChecker {
 	// ####################################################
 	// ### private utility methods
 	// ####################################################
-	private void addCellComment(Cell cell, String comment, int urgency){
+	private void addCellComment(Cell cell, String comment, UrgencyLevel urgency){
 		if ( colorFaultyCells ){
 			ExcelUtils.setCellColor(cell, urgency);
 		}
@@ -611,7 +613,7 @@ public class ExcelChecker {
 		}
 	}
 	
-	private void addCellComment(Cell cell, Vector<String> comments, int urgency){
+	private void addCellComment(Cell cell, Vector<String> comments, UrgencyLevel urgency){
 		for ( String comment : comments ){
 			addCellComment(cell, comment, urgency);
 		}

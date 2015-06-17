@@ -72,11 +72,33 @@ public class FileManager {
 	
 	/**
 	 * Opens the format file in the OS's default text editor. Implemented using
-	 * DesktopApi.open(File file)
+	 * DesktopApi.open(File file). If it fails to open the file, it logs the error.
+	 * 
 	 * @see DesktopApi
+	 * @return if the file opened successfully
 	 */
-	public static void editFormatFile(){
+	public static boolean editFormatFile(){
 		File file = new File(Wrapper.FORMAT_FILE_PATH);
-		DesktopApi.open(file);
+		
+		//Make sure the file exists
+		if ( !file.exists() ){
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				Logger.log("Error", "Format file was not found at "
+						+Wrapper.FORMAT_FILE_PATH+" and a new one could not be created");
+				Logger.logVerbose("Error", e.getMessage());
+				return false;
+			}
+		}
+		
+		boolean didOpen = DesktopApi.open(file);
+		
+		if ( !didOpen ){
+			Logger.log("Error", "Could not open the format file in the default"
+					+" text editor");
+		}
+		
+		return didOpen;
 	}
 }

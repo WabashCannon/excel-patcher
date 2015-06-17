@@ -15,13 +15,23 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import utils.Logger;
 
 public class ExcelUtils {
+	/** Shifting index for converting column characters indexes to column numerical indexes*/
 	private static final int ALPHABET_SHIFT_INDEX = (int) 'a' - 1;
+	/** Possible levels of urgency used when commenting on cells */
+	public enum UrgencyLevel { 
+		MINOR, WARNING, CRITICAL, NONE 
+	};
+	/** Indexes used for coloring excel cells. 3=Green, 5=Yellow, 2=Red */
+	private static final short[] COLOR_INDEXES = new short[]{3, 5, 2};
+	//TODO: implement rbg colors for cross platform purposes (Libre doesn't seem to match Excel color indexes)
+	
 	/**
 	 * Utility method to get a row if it exists, else create a new
-	 * one and return that
-	 * @param sheet
-	 * @param rowIndex
-	 * @return
+	 * one and return that.
+	 * 
+	 * @param sheet to get the row from
+	 * @param rowIndex for the desired row
+	 * @return the Row object at the specified index
 	 */
 	public static Row getSafeRow(Sheet sheet, int rowIndex ){
 		Row row;
@@ -34,41 +44,35 @@ public class ExcelUtils {
 	}
 	
 	/**
-	 * Returns if the given cell is empty
-	 * Checked by cell.getStringCellValue().isEmpty();
-	 * @param cell
-	 * @return
+	 * Returns if the given cell is empty or if its contents are null
+	 * 
+	 * @param cell to check
+	 * @return if the cell is empty or has null contents
 	 */
 	public static boolean isCellEmpty(Cell cell){
 		String contents  = getCellContentsAsString(cell);
 		return contents == null || contents.isEmpty();
-		/*
-		if ( cell == null ){return true;}
-		
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_STRING:
-                return cell.getRichStringCellValue().getString().isEmpty();
-            case Cell.CELL_TYPE_NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                	return cell.getDateCellValue().toString().isEmpty();
-                } else {
-                	return String.valueOf(cell.getNumericCellValue()).isEmpty();
-                }
-            case Cell.CELL_TYPE_BOOLEAN:
-            	return String.valueOf(cell.getBooleanCellValue()).isEmpty();
-            case Cell.CELL_TYPE_FORMULA:
-            	return cell.getCellFormula().isEmpty();
-            default:
-                return true;
-        }
-        */
 	}
 	
-	public static void addCellComment(Cell cell, String commentText, int urgency){
+	/**
+	 * Adds a cell comment and colors the cell based on the urgency level.
+	 * 
+	 * @param cell to comment on
+	 * @param commentText the text the should be in the excel comment
+	 * @param urgency level used for setting the cell color
+	 */
+	public static void addCellComment(Cell cell, String commentText, UrgencyLevel urgency){
 		addCellComment(cell, commentText);
 		setCellColor(cell, urgency);
 	}
 	
+	/**
+	 * Adds a cell comment containting the commentText to the specified cell. If
+	 * the cell already has a comment, it simply appends the comment.
+	 * 
+	 * @param cell to comment on
+	 * @param commentText the text the should be in the excel comment
+	 */
 	public static void addCellComment(Cell cell, String commentText){
 		Comment comment = cell.getCellComment();
 		if ( comment == null ){
@@ -94,57 +98,55 @@ public class ExcelUtils {
 		}
 	}
 	
-	// 3, 5, 2
-	private static final short[] COLOR_INDEXES = new short[]{3, 5, 2};
-			/*
-			{IndexedColors.GREEN.getIndex(), IndexedColors.YELLOW.getIndex(),
-		IndexedColors.RED.getIndex()};
-		*/
-	public static void setCellColor(Cell cell, int colorIndex){
-		assert( colorIndex >= -1 && colorIndex < COLOR_INDEXES.length);
-		
+	/**
+	 * Sets the foreground color of the cell based on the urgency level.
+	 * UrgencyLevel.NONE yields white cell.
+	 * 
+	 * Defaults to 
+	 * MINOR = GREEN, WARNING = YELLOW, CRITICAL = RED
+	 * 
+	 * @param cell to color
+	 * @param urgency The urgency to color for
+	 */
+	public static void setCellColor(Cell cell, UrgencyLevel urgency){
+		//Saftely get the cell's style
 		CellStyle style = cell.getSheet().getWorkbook().createCellStyle();
 		if ( cell.getCellStyle() != null ){
 			style.cloneStyleFrom( cell.getCellStyle() );
 		}
 		
-		if ( colorIndex == -1 ){
-			style.setFillPattern(CellStyle.NO_FILL);
-			style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-		} else {
-			style.setFillForegroundColor(COLOR_INDEXES[colorIndex]);
-		    style.setFillPattern(CellStyle.SOLID_FOREGROUND);
-		}
-	    cell.setCellStyle(style);
-	}
-	
-	public static void cleanCell(Cell cell){
-		cell.setCellComment(null);
-		setCellColor(cell, -1);
-		
-	}
-	
-	public static Object getCellContents(Cell cell){
-		if ( cell == null ){return null;}
-		
-		switch (cell.getCellType()) {
-			case Cell.CELL_TYPE_STRING:
-				return cell.getRichStringCellValue();
-			case Cell.CELL_TYPE_NUMERIC:
-				if (DateUtil.isCellDateFormatted(cell)) {
-					return cell.getDateCellValue();
-				} else {
-					return cell.getNumericCellValue();
-				}
-			case Cell.CELL_TYPE_BOOLEAN:
-				return cell.getBooleanCellValue();
-			case Cell.CELL_TYPE_FORMULA:
-				return cell.getCellFormula();
+		//Set the color
+		switch( urgency ){
+			case NONE:
+				style.setFillPattern(CellStyle.NO_FILL);
+				style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+				break;
 			default:
-				return null;
+				style.setFillForegroundColor(COLOR_INDEXES[urgency.ordinal()]);
+			    style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+				break;
 		}
+		cell.setCellStyle(style);
 	}
 	
+	/**
+	 * Clears any comments and foreground coloring from the cell.
+	 * @param cell to clean
+	 */
+	public static void cleanCell(Cell cell){
+		//Clear the cell comment
+		cell.setCellComment(null);
+		//Give the cell a white background
+		setCellColor(cell, UrgencyLevel.NONE);
+	}
+	
+	/**
+	 * Safely pulls the cell's contents, converts them to a string, 
+	 * and returns the string.
+	 * 
+	 * @param cell to get contents from
+	 * @return the cell's contents as a String
+	 */
 	public static String getCellContentsAsString(Cell cell){
 		if ( cell == null ){return "";}
 		String content = null;
@@ -176,6 +178,15 @@ public class ExcelUtils {
 		return content;
 	}
 	
+	/**
+	 * Determines if the cell if "true" or "false" based on it's contents.
+	 * <p>
+	 * If the cell is not a boolean, it evaluates to if the cell is empty. 
+	 * If it is boolean it simply returns the cell value.
+	 * 
+	 * @param cell to evaluate as boolean
+	 * @return the cell's boolean evaluation
+	 */
 	public static boolean cellToBoolean(Cell cell){
 		if ( cell == null || cell.getCellType()!=Cell.CELL_TYPE_BOOLEAN ){
 			return !ExcelUtils.isCellEmpty(cell);
@@ -185,46 +196,55 @@ public class ExcelUtils {
 	}
 	
 	/**
-	 * returns the 0-indexed index for an excel column heading
-	 * @param letter
-	 * @return
+	 * Returns the 0-indexed index for a String index like the ones used in Excel column
+	 * headings
+	 * 
+	 * @param stringIndex to convert to an integer index
+	 * @return the stringIndex's equivalent integer index
 	 */
-	public static int letterToInt(String letter){
-		letter = letter.toLowerCase();
+	public static int letterToInt(String stringIndex){
+		stringIndex = stringIndex.toLowerCase();
 		int result = 0;
-		for ( int i = 0 ; i < letter.length() ; i++ ){
-			char ch = letter.charAt(i);
+		for ( int i = 0 ; i < stringIndex.length() ; i++ ){
+			char ch = stringIndex.charAt(i);
 			if ( !Character.isLetter(ch) ){
 				Logger.log("Error", "Tried to convert a non-alphabetic string to an int");
 			}
 			int index = (int)ch - ALPHABET_SHIFT_INDEX;
-			int power = letter.length() - i - 1;
+			int power = stringIndex.length() - i - 1;
 			result += index * Math.pow( 26.0, power );
 		}
 		return result;
 	}
 	
 	/**
-	 * returns the 0-indexed excel column heading for an int
-	 * @param i
-	 * @return
+	 * Returns the 0-indexed String index correlating to the given integer index
+	 * 
+	 * @param index integer index to convert
+	 * @return the 0-indexed String index correlating to the given integer index
 	 */
-	public static String intToLetter(int i){
-		i+=1;
+	public static String intToLetter(int index){
+		index+=1;
 		String str = "";
-		int r = i%26;
+		int r = index%26;
 		do {
-			str = iIntToLetter(r) + str;
-			i /= 26;
-			r = i%26;
+			str = intToLetter(r) + str;
+			index /= 26;
+			r = index%26;
 		} while ( r != 0 );
 		
 		return str;
 	}
 	
-	private static String iIntToLetter(int i){
-		if ( i == 0 ){ i+=26; }
-		String str = "" + (char)(i+ALPHABET_SHIFT_INDEX);
+	/**
+	 * Internal conversion from int to letter 
+	 * 
+	 * @param letterIndex to convert to a letter
+	 * @return String containing the letter that was indexed
+	 */
+	private static String iIntToLetter(int letterIndex){
+		if ( letterIndex == 0 ){ letterIndex+=26; }
+		String str = "" + (char)(letterIndex+ALPHABET_SHIFT_INDEX);
 		return str.toUpperCase();
 	}
 }
