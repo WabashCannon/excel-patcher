@@ -7,7 +7,15 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Credit to StackOverflow user
+ * MightyPork
+ * 
+ * From this link:
+ * http://stackoverflow.com/questions/18004150/desktop-api-is-not-supported-on-the-current-platform
+ * 
+ * @author MightyPork
+ */
 public class DesktopApi {
 
     public static boolean browse(URI uri) {

@@ -9,6 +9,15 @@ import java.util.List;
 
 import javax.swing.JTextArea;
 
+/**
+ * Credit to StackOverflow user
+ * Lawrence Dol
+ * 
+ * From this link:
+ * http://stackoverflow.com/questions/342990/create-java-console-inside-a-gui-panel
+ * 
+ * @author Lawrence Dol
+ */
 public class TextAreaOutputStream
 extends OutputStream
 {
