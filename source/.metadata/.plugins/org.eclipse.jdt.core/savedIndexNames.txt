@@ -1,0 +1,18 @@
+INDEX VERSION 1.127+/home/ashton/excel-patcher/source/.metadata/.plugins/org.eclipse.jdt.core
+2307328643.index
+664741535.index
+3938652823.index
+2247735918.index
+488450250.index
+2426646370.index
+460152253.index
+3542660237.index
+2598035366.index
+2813657703.index
+1259291233.index
+1513993030.index
+3075020488.index
+989528713.index
+1159935248.index
+392775124.index
+3900037835.index
