@@ -11,10 +11,19 @@ import utils.Logger;
 
 public class SheetData {
 	
+	/** Sheet that this data is based on */
 	private Sheet sheet;
+	/** Map of column headers or titles to that columns index */
 	private HashMap<String, Integer> headers = new HashMap<String, Integer>();
+	/** Vector containing all the rows that are to be checked */
 	private Vector<Integer> loanRowIndexes = new Vector<Integer>();
 	
+	/**
+	 * Constructor to create a sheet data from a workbook sheet. It initializes the
+	 * data upon construction.
+	 * 
+	 * @param sheet to create sheet data from
+	 */
 	public SheetData(Sheet sheet){
 		this.sheet = sheet;
 		
@@ -26,14 +35,27 @@ public class SheetData {
 	// ####################################################
 	// ### Getters and Setters
 	// ####################################################
-	public boolean hasHeader(String text){
-		return headers.containsKey(text);
+	/**
+	 * Returns if this SheetData has the specified header.
+	 * @param header to check
+	 * @return if the header exists in the sheet
+	 */
+	public boolean hasHeader(String header){
+		return headers.containsKey(header);
 	}
 	
+	/**
+	 * Returns the number of headers in the sheet
+	 * @return the number of headers in the sheet
+	 */
 	public int getNumHeaders(){
 		return headers.size();
 	}
 	
+	/**
+	 * Returns a copy of the content row indexes in the sheet
+	 * @return a copy of the content row indexes in the sheet
+	 */
 	public Vector<Integer> getLoanRowIndexes(){
 		Vector<Integer> copy = new Vector<Integer>();
 		for ( int i : loanRowIndexes ){
@@ -42,6 +64,12 @@ public class SheetData {
 		return copy;
 	}
 	
+	/**
+	 * Returns the numerical index correlating to the given column header
+	 * 
+	 * @param header to get the index for
+	 * @return index of the given header's column
+	 */
 	public int getColumnIndex(String header){
 		if ( !headers.containsKey(header) ){
 			Logger.log("Error", header+" is not a column header. Did you forget to "
@@ -51,6 +79,13 @@ public class SheetData {
 		return headers.get(header);
 	}
 	
+	/**
+	 * Returns the header or title for the column with the given index. Returns null
+	 * if the header does not exist in this sheet.
+	 * 
+	 * @param columnIndex to get the header for
+	 * @return the header or title of the column with the given index
+	 */
 	public String getHeader(int columnIndex){
 		assert( headers.containsValue(columnIndex) );
 		for ( String header : headers.keySet() ){
@@ -61,13 +96,16 @@ public class SheetData {
 		assert( false );
 		return null;
 	}
+	
 	// ####################################################
 	// ### Private methods for loading
 	// ####################################################
-	/** Maximum number of consecutive blank rows the program can find before determining there are no more loans */
+	/** Maximum number of consecutive blank rows the program can find before 
+	 * determining there are no more loans */
 	private final int MAX_BLANK_COLUMNS = 10;
+	
 	/**
-	 * Loads all of the headers it can find on the input sheet into headers
+	 * Loads all of the headers it can find on the input sheet into headers map
 	 */
 	private void loadHeaders(){
 		// Assume headers are in row 0
@@ -89,10 +127,11 @@ public class SheetData {
 		Logger.logVerbose("Warning: Stopoped searching for headers after column "+ExcelUtils.intToLetter(columnCount));
 	}
 	
-	/** Maximum number of consecutive blank rows the program can find before determining there are no more loans */
+	/** Maximum number of consecutive blank rows the program can find 
+	 * before determining there are no more rows */
 	private final int MAX_BLANK_ROWS = 10;
 	/**
-	 * Counts the number of loans on the input sheet
+	 * Counts the number of rows on the input sheet
 	 */
 	private void countLoans(){
 		int rowNum = 1;
