@@ -234,7 +234,7 @@ public class ExcelUtils {
 		String str = "";
 		int r = index%26;
 		do {
-			str = intToLetter(r) + str;
+			str = iIntToLetter(r) + str;
 			index /= 26;
 			r = index%26;
 		} while ( r != 0 );
