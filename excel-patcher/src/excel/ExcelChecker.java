@@ -17,22 +17,36 @@ import format.DataType;
 import format.DependencyTree;
 import format.FormatData;
 
+/**
+ * The meat and potatoes of the excel-patcher program. This class
+ * has two core commands, cleanOutput and patchAllLoans. See these two
+ * methods for what this class does.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ */
 public class ExcelChecker {
-	//Singleton
+	/** Global instance */
 	public static ExcelChecker checker = null;
 	
-	//Current cell to query
+	/** Current cell to querry. */
 	public Cell currentCell;
 	
-	//TMP: Settings
+	//Settings
+	/** Setting determining if non-required cells should be deleted */
 	public boolean deleteIfNotRequired = true;
+	/** Setting determining if the program should auto-correct format issues */
 	public boolean tryToFixFormatIssues = true;
+	/** Setting determining if cells should be colored on the output workbook */
 	public boolean colorFaultyCells = true;
+	/** Setting determining if comments should be added to the output workbook */
 	public boolean commentOnFaultyCells = true;
 	
 	//Instance variables
+	/** The sheet of the workbook being checked */
 	private Sheet sheet;
+	/** The SheetData object correlating to the variable sheet */
 	private SheetData sheetData;
+	/** The format data loaded from the format file */
 	private FormatData formatData;
 	
 	/**
@@ -41,20 +55,24 @@ public class ExcelChecker {
 	 * @param data
 	 */
 	public ExcelChecker(Workbook wb, FormatData data){
-		/*
-		if ( ExcelChecker.checker != null ){
-			Logger.log("Error", "ExcelChecker is a singleton class, cannot instantiate twice");
-		}
-		*/
+		//Store the global instance
 		ExcelChecker.checker = this;
+		
+		//Always run on the first sheet of the workbook
 		this.sheet = wb.getSheetAt(0);
+		
+		//Create the sheet data and format data
 		this.sheetData = new SheetData(sheet);
 		this.formatData = data;
 		
+		//Rough validation check of the format data
 		checkFormatData();
 		Logger.log("Format file was most likely valid");
 	}
 	
+	/**
+	 * Cleans the excel sheet of any comments and coloring
+	 */
 	public void cleanOutput(){
 		for ( int rowIndex : sheetData.getLoanRowIndexes() ){
 			Row row = sheet.getRow(rowIndex);
@@ -72,15 +90,21 @@ public class ExcelChecker {
 	}
 	
 	/**
-	 * Checks the format data to ensure it is (mostly) valid
+	 * Checks the format data to ensure it is mostly valid. This is
+	 * only a rough check, but it prevents several runtime issues while checking
+	 * the excel sheet.
 	 */
 	private void checkFormatData(){
+		//Checks that the format file has rules for all columns
+		// and alerts the user if this is not the case
 		if ( sheetData.getNumHeaders() != formatData.getNumColumns() ){
 			Logger.log("Warning: Format file specified "+formatData.getNumColumns()
 					+" columns to check, but "+sheetData.getNumHeaders()
 					+" headers were found on the input sheet. I'll only "
 					+"work on the columns from the format file.");
 		}
+		//Checks that all format columns exist in the sheet and alerts the user
+		// about each format column that is not in the sheet
 		for ( String title : formatData.getColumnTitles() ){
 			if ( !sheetData.hasHeader(title) ){
 				Logger.log("Warning: Found column header of "+title+" in the format"
@@ -103,27 +127,16 @@ public class ExcelChecker {
 			}
 		}
 		
-		//Check for cyclic deps by making tree
+		//Check for cyclic dependencies by making a dependency tree
 		for ( String title : columnTitles ){
 			DependencyTree tree = new DependencyTree(title);
 			ColumnFormatData columnFormat = formatData.getColumnFormat(title);
 			Set<String> deps = columnFormat.getDependencies();
-			/*
-			for ( String dep : deps ){
-				if ( !formatData.getColumnTitles().contains(dep) ){
-					Logger.log("Error", "The format file depends on columns that aren't "
-							+"declared in it");
-				}
-			}
-			*/
 			addChildDependency(tree, title, deps);
 			columnFormat.setFinalDependencies( tree.getLeaves() );
-			//System.out.println(tree.getLeaves());
-			//System.out.println(tree);
 		}
 		
 		formatData.compileDependencies();
-		//System.out.println( formatData.getAllDependencies() );
 	}
 	
 	/**
@@ -153,48 +166,52 @@ public class ExcelChecker {
 	// ### Checking the input file
 	// ####################################################
 	
+	/**
+	 * The public method called to check and patch all of the rows in the
+	 * excel sheet.
+	 */
 	public void patchAllLoans(){
-		/*
-		String column = "IsBalloonMortgage";
-		int cellIndex = sheetData.getColumnIndex(column);
-		ColumnFormatData format = formatData.getColumnFormat(column);
-		Row row = sheet.getRow(1);
-		Cell cell = row.getCell(cellIndex);
-		if ( cell == null ) { cell = row.createCell(cellIndex); }
-		
-		Vector<String> errors = checkCellFormat(cell, format);
-		System.out.println(errors);
-		*/
-		//tmp
-		//patchRow(3);
-		//patchRow(2);
-		
 		for ( int rowIndex : sheetData.getLoanRowIndexes() ){
 			patchRow(rowIndex);
 		}
-		
 	}
 	
+	/**
+	 * Checks and patches an individual row.
+	 * 
+	 * @param rowIndex of row to check
+	 */
 	private void patchRow(int rowIndex){
 		Logger.logVerbose("Working on row "+rowIndex);
 		Row row = sheet.getRow(rowIndex);
 		
+		//Try to meet all dependency requirements for this row, and store if it works
 		boolean goodDependencies = patchRowDependencies(row);
+		
+		//If the dependencies are met we can check and correct the remaining cells
 		if ( goodDependencies ){
 			Logger.logVerbose("Resolved dependencies on this row. Continuing");
 			//Patch non-dependency cells
 			patchRowIndependents(row);
 			patchRowDependents(row);
 		} else {
+			//If dependencies are unmet, it is hard to check and correct
+			// the other cells in the row so we quit
 			Logger.logVerbose("Failed to resolve dependencies on row "+rowIndex
 					+". Skipping this row");
-			//checkAndTagAll(row);
 			return;
 		}
 		
+		//Runs one final check on this row, and tags cells with comments and colors
 		checkAndTagAll(row);
 	}
 	
+	/**
+	 * For each cell in the row, if it is not filled correctly, tag it as an incorrect
+	 * cell.
+	 * 
+	 * @param row to check and tag cells in
+	 */
 	private void checkAndTagAll(Row row){
 		Vector<String> allHeaders = formatData.getColumnTitles();
 		for ( String header : allHeaders ){
@@ -208,6 +225,14 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Check if the given cell is valid under the given format data. If it is not,
+	 * add comments for the errors and color it based on the urgency.
+	 * 
+	 * @param cell to check and tag
+	 * @param format to use when checking the cell
+	 * @param urgency of the check, used in coloring the cell
+	 */
 	private void checkAndTag(Cell cell, ColumnFormatData format, int urgency) {
 		if ( !format.isRequired() ){
 			return;
@@ -221,6 +246,13 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * For the given row, attempt to patch all the dependencies that arise from
+	 * the format data. Returns if all the dependency columns were correct or corrected.
+	 * 
+	 * @param row to resolve dependencies on
+	 * @return if the dependencies are resolved
+	 */
 	private boolean patchRowDependencies(Row row){
 		boolean completeSuccess = true;
 		//Get all core dependencies
@@ -283,7 +315,12 @@ public class ExcelChecker {
 		}
 		return completeSuccess;
 	}
-
+	
+	/**
+	 * Checks all independent cells in the row, and corrects any that are correctable.
+	 * 
+	 * @param row to check and patch independent cells in
+	 */
 	private void patchRowIndependents(Row row){
 		//Get headers of non-dependency cells
 		Set<String> dependencyHeaders = formatData.getAllDependencies();
@@ -299,13 +336,6 @@ public class ExcelChecker {
 			}
 			currentCell = cell;
 			ColumnFormatData format = formatData.getColumnFormat(header);
-			
-			/*
-			//Skip not required cells
-			if ( !format.isRequired() ){
-				continue;
-			}
-			*/
 			
 			//Skip all rows that are not independent
 			if ( format.getDependencies().size() > 0 ){
@@ -342,6 +372,11 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Checks all dependent cells in the row, and corrects any that are correctable.
+	 * 
+	 * @param row to check and patch dependent cells in
+	 */
 	private void patchRowDependents(Row row){
 		//Get headers of non-dependency cells
 		Set<String> dependencyHeaders = formatData.getAllDependencies();
@@ -358,13 +393,6 @@ public class ExcelChecker {
 			currentCell = cell;
 			ColumnFormatData format = formatData.getColumnFormat(header);
 			
-			/*
-			//Skip not required cells
-			if ( !format.isRequired() ){
-				continue;
-			}
-			*/
-			
 			//Skip all rows that are not dependent
 			if ( format.getDependencies().size() == 0 ){
 				continue;
@@ -379,6 +407,12 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Checks and patches the specified cells using the given column format data.
+	 * 
+	 * @param cell to check
+	 * @param format data to check with
+	 */
 	private void patchCell(Cell cell, ColumnFormatData format){
 		// all dependency headers
 		Set<String> dependencyHeaders = format.getDependencies();
@@ -427,6 +461,14 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Checks that the cell's format matches that specified in the column
+	 * format data.
+	 * 
+	 * @param cell to check
+	 * @param format data to check against
+	 * @return a list of the errors
+	 */
 	private Vector<String> checkCellFormat(Cell cell, ColumnFormatData format){
 		currentCell = cell;
 		Vector<String> errors = new Vector<String>();
@@ -479,6 +521,14 @@ public class ExcelChecker {
 		return errors;
 	}
 	
+	/**
+	 * Checks that the column format data's dependency cells for the given cell
+	 * are met.
+	 * 
+	 * @param cell to check
+	 * @param format data to check against
+	 * @return a list of the unmet dependency cells
+	 */
 	private Vector<String> checkCellDependencies(Cell cell, ColumnFormatData format){
 		Vector<String> errors = new Vector<String>();
 		
@@ -501,24 +551,16 @@ public class ExcelChecker {
 		return errors;
 	}
 	
-	private boolean fillCell(Cell cell, ColumnFormatData format){
-		assert( cell != null );
-		RichTextString autofillValue = format.getValue();
-		if ( autofillValue != null ){
-			String comm = "Changed to fix a wrong value. Had value of "+ExcelUtils.getCellContentsAsString(cell);
-			
-			cell.setCellType(Cell.CELL_TYPE_BLANK);
-			cell.setCellValue( autofillValue );
-			addCellComment(cell, comm , UrgencyLevel.MINOR);
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
 	// ####################################################
-	// ### 5 checkers for cell
+	// ### 4 checkers for cell
 	// ####################################################
+	/**
+	 * Checks that the format data's "Required" condition is met
+	 * 
+	 * @param cell to check
+	 * @param format data to check against
+	 * @return if the condition is met
+	 */
 	private boolean checkIsRequired(Cell cell, ColumnFormatData format){
 		boolean isRequired = format.isRequired();
 		if ( isRequired ){
@@ -535,6 +577,13 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Checks that the format data's "MaxPossibleCharacters" condition is met
+	 * 
+	 * @param cell to check
+	 * @param format data to check against
+	 * @return if the condition is met
+	 */
 	private boolean checkMaxCharacterCount(Cell cell, ColumnFormatData format){
 		int maxCharCount = format.getMaxCharacterCount();
 		
@@ -551,6 +600,13 @@ public class ExcelChecker {
 		return contents.length() <= maxCharCount;
 	}
 	
+	/**
+	 * Checks that the format data's "Type" condition is met
+	 * 
+	 * @param cell to check
+	 * @param format data to check against
+	 * @return if the condition is met
+	 */
 	private boolean checkDataType(Cell cell, ColumnFormatData format){
 		DataType dataType = format.getType();
 		if ( dataType == null ){
@@ -573,6 +629,13 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Checks that the format data's "Value" condition is met
+	 * 
+	 * @param cell to check
+	 * @param format data to check against
+	 * @return if the condition is met
+	 */
 	private boolean checkValue(Cell cell, ColumnFormatData format){
 		RichTextString desiredValue = format.getValue();
 		if ( desiredValue == null ){
@@ -584,9 +647,40 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Attempts to auto-fill the cell based on the given format data. Returns 
+	 * if the auto-fill was successful.
+	 * 
+	 * @param cell to try to fill
+	 * @param format data to use when trying to fill
+	 * @return if the cell was filled successfully
+	 */
+	private boolean fillCell(Cell cell, ColumnFormatData format){
+		assert( cell != null );
+		RichTextString autofillValue = format.getValue();
+		if ( autofillValue != null ){
+			String comm = "Changed to fix a wrong value. Had value of "+ExcelUtils.getCellContentsAsString(cell);
+			
+			cell.setCellType(Cell.CELL_TYPE_BLANK);
+			cell.setCellValue( autofillValue );
+			addCellComment(cell, comm , UrgencyLevel.MINOR);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	// ####################################################
 	// ### public cell checker methods for dependencies
 	// ####################################################
+	/**
+	 * Returns the cell in the column with the given title that is in the row of
+	 * the currentCell. This method is a bit of a visibility hack, so that other classes
+	 * can query the sheet. Ideally I will fix this for encapsulation purposes.
+	 * 
+	 * @param title of the column that the desired cell is in
+	 * @return the cell in the column with the specified title and the current cell's row
+	 */
 	public Cell getColumnForCurrentCellRow(String title){
 		if ( currentCell == null ){
 			Logger.log("Warning: Attempted to query currentCell when it was null");
@@ -595,15 +689,19 @@ public class ExcelChecker {
 		int columnIndex =  sheetData.getColumnIndex(title);
 		Row row = currentCell.getRow();
 		Cell cell = row.getCell(columnIndex);
-		if ( cell == null ){
-			//System.out.println("Query returned null cell for column "+title);
-		}
 		return cell;
 	}
 	
 	// ####################################################
 	// ### private utility methods
 	// ####################################################
+	/**
+	 * Wrapper method to call ExcelUtils' comment method if the settings permit it.
+	 * 
+	 * @param cell to comment on
+	 * @param comment text to put in the comment
+	 * @param urgency used in coloring the cell
+	 */
 	private void addCellComment(Cell cell, String comment, UrgencyLevel urgency){
 		if ( colorFaultyCells ){
 			ExcelUtils.setCellColor(cell, urgency);
@@ -613,6 +711,13 @@ public class ExcelChecker {
 		}
 	}
 	
+	/**
+	 * Wrapper method to call ExcelUtils' comment method if the settings permit it.
+	 * 
+	 * @param cell to comment on
+	 * @param comments to add to the cell
+	 * @param urgency used in coloring the cell
+	 */
 	private void addCellComment(Cell cell, Vector<String> comments, UrgencyLevel urgency){
 		for ( String comment : comments ){
 			addCellComment(cell, comment, urgency);

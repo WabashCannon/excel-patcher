@@ -14,6 +14,12 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import utils.Logger;
 
+/**
+ * Static utility class for modifying POI Workbooks.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class ExcelUtils {
 	/** Shifting index for converting column characters indexes to column numerical indexes*/
 	private static final int ALPHABET_SHIFT_INDEX = (int) 'a' - 1;
