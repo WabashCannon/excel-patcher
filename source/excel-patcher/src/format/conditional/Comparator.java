@@ -1,5 +1,6 @@
-package format;
+package format.conditional;
 
+import format.KeywordChecker;
 import utils.Logger;
 
 /**
@@ -25,7 +26,7 @@ public class Comparator {
 	 * @param comparator
 	 * @return
 	 */
-	public static boolean evaluate(String term1, String term2, String comparator){
+	protected static boolean evaluate(String term1, String term2, String comparator){
 		//assert( term1 != null && term2 != null && comparator != null);
 		String expressionString = term1+" "+comparator+" "+term2;
 		if ( !KeywordChecker.isComparator(comparator) ){

@@ -1,4 +1,4 @@
-package format;
+package format.conditional;
 
 import java.util.Vector;
 
@@ -6,17 +6,38 @@ import org.apache.poi.ss.usermodel.Cell;
 
 import excel.ExcelChecker;
 import excel.ExcelUtils;
+import format.KeywordChecker;
 
-public class ConditionalExpressionData {
+/**
+ * This class contains a single conditional expression and is used for evaluating
+ * it to attain it's value.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
+public class SubConditionalExpression {
+	/** value of the conditional expression when it evaluates to true */
 	private String value;
+	/** The conditions that comprise the logical part of the expression */
 	private Vector<Condition> conditions = new Vector<Condition>();
+	/** The logical comparators used to relate the conditions */
 	private Vector<String> logicals = new Vector<String>();
 	
-	public boolean isBoolean(){
+	/**
+	 * Returns if the value of this expression is a boolean
+	 * @return if the value of this expression is a boolean
+	 */
+	protected boolean isBoolean(){
 		return ( value == null ) || KeywordChecker.isBoolean(value);
 	}
 	
-	public boolean isTrue(){
+	/**
+	 * Returns if the logical expression in this conditional expression
+	 * evaluates to true.
+	 * 
+	 * @return if this conditional expression is true.
+	 */
+	protected boolean isTrue(){
 		assert( logicals.size() == conditions.size()-1 );
 		boolean isTrue = conditions.get(0).isTrue();
 		
@@ -32,7 +53,13 @@ public class ConditionalExpressionData {
 		return isTrue;
 	}
 	
-	public Vector<String> getDependencies(){
+	/**
+	 * Returns a vector of the column titles on which this expression
+	 * depends.
+	 * @return  a vector of the column titles on which this expression
+	 * depends.
+	 */
+	protected Vector<String> getDependencies(){
 		Vector<String> deps = new Vector<String>();
 		for ( Condition cond : conditions ){
 			deps.addAll( cond.getDependencies() );
@@ -41,11 +68,20 @@ public class ConditionalExpressionData {
 		return deps;
 	}
 	
-	public void setValue(String str){
+	/**
+	 * Sets the value of this conditional expression
+	 * @param str the new value of this conditional expression
+	 */
+	protected void setValue(String str){
 		value = str;
 	}
 	
-	public String getValue(){
+	/**
+	 * Evaluates this expression and returns value when true, and "false" when
+	 * false.
+	 * @return value when the expression is true, and "false" when false.
+	 */
+	protected String getValue(){
 		if ( isBoolean() ){
 			if ( value != null ){
 				if ( KeywordChecker.isTrue( value ) ){
@@ -66,14 +102,24 @@ public class ConditionalExpressionData {
 		//return isBoolean() ? String.valueOf(isTrue()) : value;
 	}
 	
-	public void addCondition(Condition cond){
-		conditions.add(cond);
+	/**
+	 * Appends a condition to the conditions list
+	 * 
+	 * @param condition to add to the list
+	 */
+	protected void addCondition(Condition condition){
+		conditions.add(condition);
 	}
 	
-	public void addLogical(String str){
+	/**
+	 * Appends a logical operator to the logicals list
+	 * @param str logical operator to add
+	 */
+	protected void addLogical(String str){
 		logicals.add(str);
 	}
 	
+	@Override
 	public String toString(){
 		String str = "";
 		str += value;

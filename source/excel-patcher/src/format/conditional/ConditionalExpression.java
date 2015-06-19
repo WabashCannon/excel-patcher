@@ -1,4 +1,4 @@
-package format;
+package format.conditional;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -6,13 +6,27 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
 
+import format.KeywordChecker;
 import utils.Logger;
 
+/**
+ * This class translates a string to an evaluable conditional expression
+ * object upon instantiation. It allows for multiple statements with different
+ * return values to be used (each of which will be a SubConditionalExpression).
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class ConditionalExpression {
+	/** The individual conditional expressions that comprise the whole expression */
+	private Vector<SubConditionalExpression> expressions =
+			new Vector<SubConditionalExpression>();
 	
-	private Vector<ConditionalExpressionData> expressions =
-			new Vector<ConditionalExpressionData>();
-	
+	/**
+	 * Creates a new conditional expression from the provided text
+	 * 
+	 * @param text to create this conditional expression from
+	 */
 	public ConditionalExpression(String text){
 		text = text.trim();
 		
@@ -23,25 +37,35 @@ public class ConditionalExpression {
 		}
 	}
 	
-	//Returns prefix value
+	/**
+	 * Returns the value of the first conditional expression that evaluates
+	 * to true in this multi-part conditional expression. Defaults to false
+	 * if no value is found.
+	 * 
+	 * @return value of this multi-part conditional expression
+	 */
 	public String getValue(){
-		for ( ConditionalExpressionData expression : expressions ){
+		for ( SubConditionalExpression expression : expressions ){
 			if ( expression.isTrue() ){
 				return expression.getValue();
 			}
 		}
 		
 		Logger.logVerbose("Conditional expression had no true statements");
-		for ( ConditionalExpressionData expression : expressions ){
+		for ( SubConditionalExpression expression : expressions ){
 			Logger.logVerbose("        "+expression.toString());
 		}
 		
 		return "false";
 	}
 	
+	/**
+	 * Provides the dependency set of this expression.
+	 * @return this expressions dependencies
+	 */
 	public Set<String> getDependencies(){
 		Set<String> deps = new HashSet<String>();
-		for ( ConditionalExpressionData expression : expressions ){
+		for ( SubConditionalExpression expression : expressions ){
 			deps.addAll( expression.getDependencies() );
 		}
 		return deps;
@@ -50,9 +74,15 @@ public class ConditionalExpression {
 	// ####################################################
 	// ### Private utility methods
 	// ####################################################
+	/**
+	 * Reads the expression in the given line and stores it in a single part
+	 * conditional expression object (ConditionalExpression)
+	 * 
+	 * @param line to read
+	 */
 	private void readExpression(String line){
 		//Create the new conditional expression data
-		ConditionalExpressionData data = new ConditionalExpressionData();
+		SubConditionalExpression data = new SubConditionalExpression();
 		expressions.add(data);
 		//Check is constant
 		if ( isSingleConstant(line) ){
@@ -83,10 +113,6 @@ public class ConditionalExpression {
 			}
 		}
 		
-		// is not a column
-		//For the multi-word scenario
-		//read the value if there is one, else is boolean
-		//read the expression
 		Scanner scanner = new Scanner(line);
 		scanner.useDelimiter(" ");
 		
@@ -117,12 +143,6 @@ public class ConditionalExpression {
 			//TODO is default boolean
 		}
 		
-		//Process the conditionals
-		
-		//while more
-			//read until word is a boolean operator
-			//Add condition on what we read
-			//Add boolean operator
 		//Where we build up the condition's source string
 		Vector<String> conditionSource = new Vector<String>();
 		//While there are more words
@@ -162,58 +182,15 @@ public class ConditionalExpression {
 			
 			conditionSource.removeAllElements();
 		}
-		
-		//System.out.println( data );
-		
-		/*
-		String word = wordsList.removeFirst();
-		//Read the first word and store a value
-		if ( KeywordChecker.isWhen(word) ){
-			data.setValue( null );
-		} else {
-			data.setValue( word );
-			word = wordsList.removeFirst();
-			if ( !KeywordChecker.isWhen(word) ){
-				Logger.log("Error", "Expected keyword \"when\" to be first or second in conditional expression");
-			}
-		}
-		//Buffer for words as we work
-		LinkedList<String> currentQueue = new LinkedList<String>();
-		//Read each condition
-		while ( !wordsList.isEmpty() ){
-			//read until the end or the next logical operator
-			word = wordsList.removeFirst();
-			while ( !KeywordChecker.isLogical(word) && !wordsList.isEmpty() ){
-				currentQueue.add(word);
-				word = wordsList.removeFirst();
-			}
-			//Add word to logicals,
-			if ( KeywordChecker.isLogical(word) ){
-				data.addLogical(word);
-			} else {//or it was the final word in final condition
-				currentQueue.add(word);
-			}
-			// Check that the condition read is reasonable
-			if ( currentQueue.size() != 1 && currentQueue.size() != 3 ){
-				String condition = "";
-				for ( String tmp : currentQueue ){
-					condition += tmp+" ";
-				}
-				Logger.log("Error", "Expected condition to contain 1 or 3 words recieved \""+condition+"\"");
-			}
-			//Add logical expression to vector
-			String[] conditionString = new String[currentQueue.size()];
-			conditionString = currentQueue.toArray(conditionString);
-			Condition condition = new Condition(conditionString);
-			data.addCondition(condition);
-			
-			//Clear the queue
-			currentQueue.clear();
-			
-		}
-		*/
 	}
 	
+	/**
+	 * Returns if the provided string is a single "word". This is true when it
+	 * contains no spaces, or is surrounded by double-quotes.
+	 * 
+	 * @param word to test
+	 * @return if it is a single word
+	 */
 	private boolean isCompleteWord(String word){
 		word = word.trim();
 		if ( word.startsWith("\"") ) {
@@ -223,6 +200,12 @@ public class ConditionalExpression {
 		}
 	}
 	
+	/**
+	 * Returns if the line is a single constant term.
+	 * 
+	 * @param line to test
+	 * @return if the line is a single constant term.
+	 */
 	private boolean isSingleConstant(String line){
 		line = line.trim();
 		if ( line.startsWith("\"") && line.endsWith("\"") ){
@@ -232,9 +215,10 @@ public class ConditionalExpression {
 		return false;
 	}
 	
+	@Override
 	public String toString(){
 		String line = "";
-		for ( ConditionalExpressionData data : expressions ){
+		for ( SubConditionalExpression data : expressions ){
 			line += data + "\n";
 		}
 		return line;
