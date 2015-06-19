@@ -13,9 +13,9 @@ Usage
 -----
 Usage is easy. Once you have the program running, browse for an input excel file and an output directory. If you already have a format file set up, click the **Check**  button and the program will begin running. The text field at the bottom of the window will begin printing information about the sheet. When you see the message "Done checking file, see the output.xlsx" it has completed.
 
-To set up your format file, use the menu to select **File→Edit format file**. This should open the format file in your operating system's default text editor. For information about setting up a format file see [How to use the format file](link to format file readme)
+To set up your format file, use the menu to select **File→Edit format file**. This should open the format file in your operating system's default text editor. For information about setting up a format file see [How to use the format file](Format_Manual.md)
 
-**[How to use the format file](https://github.com/WabashCannon/excel-patcher/Format_Manual.md)**
+**[How to use the format file](Format_Manual.md)**
 
 Installation
 ------
