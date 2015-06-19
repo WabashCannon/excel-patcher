@@ -2,7 +2,29 @@ package format;
 
 import utils.Logger;
 
+/**
+ * This class is a static utility class for carrying out comparisons. It mostly
+ * acts as a translator from Strings which contain boolean statements to the
+ * boolean evaluation of that statement.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class Comparator {
+	/**
+	 * private constructor used to suppress instantiation of a static
+	 * utility class
+	 */
+	private Comparator(){}
+	
+	/**
+	 * Binary comparison of term1 and term2 using the comparator given.
+	 * 
+	 * @param term1
+	 * @param term2
+	 * @param comparator
+	 * @return
+	 */
 	public static boolean evaluate(String term1, String term2, String comparator){
 		//assert( term1 != null && term2 != null && comparator != null);
 		String expressionString = term1+" "+comparator+" "+term2;
@@ -25,6 +47,14 @@ public class Comparator {
 		}
 	}
 	
+	/**
+	 * Returns the result of a comparison between two Strings
+	 * 
+	 * @param term1 first term to compare
+	 * @param term2 second term to compare
+	 * @param comparator to use in comparison
+	 * @return boolean evaluation of the comparison
+	 */
 	private static boolean compareStrings(String term1, String term2, String comparator) {
 		if ( KeywordChecker.isEqual(comparator) ){
 			return term1.equals(term2);
@@ -35,26 +65,41 @@ public class Comparator {
 		}
 		return false;
 	}
-
-	private static boolean compareNumerics(double a, double b, String comparator){
+	
+	/**
+	 * Returns the result of a numerical comparison between two doubles
+	 * using the provided comparator.
+	 * 
+	 * @param d1 First number to compare
+	 * @param d2 Second number to compare
+	 * @param comparator to use in comparison
+	 * @return boolean evaluation of the comparison
+	 */
+	private static boolean compareNumerics(double d1, double d2, String comparator){
 		if ( KeywordChecker.isEqual(comparator) ){
-			return a == b;
+			return d1 == d2;
 		} else if (KeywordChecker.isGreater(comparator) ){
-			return a > b;
+			return d1 > d2;
 		} else if (KeywordChecker.isLess(comparator) ){
-			return a < b;
+			return d1 < d2;
 		} else if (KeywordChecker.isGreaterEqual(comparator) ){
-			return a >= b;
+			return d1 >= d2;
 		} else if (KeywordChecker.isLessEqual(comparator) ){
-			return a <= b;
+			return d1 <= d2;
 		} else if (KeywordChecker.isNot(comparator) ){
-			return a != b;
+			return d1 != d2;
 		} else {
 			Logger.log("Error", "Comparator "+comparator+" is invalid for numeric types.");
 		}
 		return false;
 	}
 	
+	/**
+	 * Determines if the provided text is numeric.
+	 * 
+	 * @param text to check
+	 * @return if the text is numeric
+	 */
 	private static boolean isNumber(String text){
 		try {
 			Double.parseDouble(text);
@@ -64,6 +109,15 @@ public class Comparator {
 		return true;
 	}
 	
+	/**
+	 * Runs a comparison between a and b, assuming at least one is empty.
+	 * Assumes the comparator is synonymous with either == or !=.
+	 * 
+	 * @param a first term to compare
+	 * @param b second term to compare
+	 * @param comparator to use, should be synonymous with == or !=
+	 * @return the result of the comparison
+	 */
 	private static boolean compareWithEmpty(String a, String b, String comparator ){
 		boolean onlyOneEmpty = ( a.isEmpty() && !b.isEmpty() )
 				|| ( !a.isEmpty() && b.isEmpty() );
