@@ -1,1 +1,1 @@
-/home/ashton/excel-patcher/samples/sample_input.xlsx
+/home/ashton/git/excel-patcher/samples/sample_input.xlsx

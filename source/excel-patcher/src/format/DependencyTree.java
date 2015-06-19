@@ -126,26 +126,3 @@ public class DependencyTree {
 		}
     }
 }
-
-/*
-
-public class DependencyTree {
-	String name;
-	List<String> children;
-	
-	public DependencyTree(String name, List<String> children){
-		assert( name != null && children != null );
-		this.name = name;
-		this.children = children;
-	}
-	
-	public void addToChild(String childName, List<String> toAdd){
-		assert( childName != null && toAdd != null );
-		for ( String newChildName : toAdd ){
-			if ( newChildName.equals(name) ){
-				
-			}
-		}
-	}
-}
-*/

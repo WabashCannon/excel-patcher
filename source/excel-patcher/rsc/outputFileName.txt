@@ -1,1 +1,1 @@
-/home/ashton/excel-patcher/samples
+/home/ashton/git/excel-patcher/samples

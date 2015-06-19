@@ -14,15 +14,31 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import utils.Logger;
 import excel.ExcelUtils;
 
+/**
+ * This class is used for storing a data type and checking a cell's contents
+ * to see if it matches that data type. 
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class DataType {
+	/** List of allowable data types */
 	public static final List<String> DATA_TYPES = Arrays.asList(new String[]
 			{"String", "Integer", "Boolean", "Date", "Decimal", "Enumerable"});
-	
+	/** This instance's data type */
 	private String dataTypeName = null;
+	/** If the data type is Enumerable, this list contains possible values */
 	private List<String> enumVals;
+	/** Total length for decimal data type */
 	int totalLength = 0;
+	/** Decimal length form decimal data type */
 	int decimalLength = 0;
 	
+	/**
+	 * Creates a new DataType object from the given format text
+	 * 
+	 * @param text to create this DataType from
+	 */
 	public DataType(String text){
 		for ( String typeName : DATA_TYPES ){
 			if ( text.startsWith(typeName) ){
@@ -38,6 +54,12 @@ public class DataType {
 		}
 	}
 	
+	/**
+	 * Loads the possible enumerable values from the input text. Should
+	 * only be called when dataTypeName is "Enumerable"
+	 * 
+	 * @param text to read from
+	 */
 	private void readEnumerableInput(String text){
 		enumVals = new ArrayList<String>();
 		
@@ -48,6 +70,11 @@ public class DataType {
 		}
 	}
 	
+	/**
+	 * Loads the total length and decimal length from the input text. Should
+	 * only be called when the dataTypeName is "Decimal"
+	 * @param text to read from
+	 */
 	private void readDecimalInput(String text){
 		String range = text.substring(dataTypeName.length());
 		String[] splitRange = range.split(",");
@@ -77,6 +104,12 @@ public class DataType {
 		}
 	}
 	
+	/**
+	 * Checks the data type of the current cell and returns if it is correct.
+	 * 
+	 * @param cell to check
+	 * @return if the cell's data type is correct
+	 */
 	public boolean checkCell(Cell cell){
 		switch( cell.getCellType() ){
 			case Cell.CELL_TYPE_BOOLEAN:
@@ -102,18 +135,18 @@ public class DataType {
 				return isValidNumber(cellValue, isInt);
 			case Cell.CELL_TYPE_FORMULA:
 				return false;
-				/*
-				String str = cell.getCellFormula();
-				if ( str.equals("TRUE()") || str.equals("FALSE()")){
-					return dataTypeName.equals("Boolean");
-				}
-				*/
 			default:
 				break;
 		}
 		return false;
 	}
 	
+	/**
+	 * Attempts to fix the data type in the provided cell.
+	 * 
+	 * @param cell to fix the data type of
+	 * @return the proper cell contents if fix was successful, otherwise null
+	 */
 	public RichTextString fixDataType(Cell cell){
 		if ( dataTypeName.equals("Boolean") && cell.getCellType() == Cell.CELL_TYPE_BOOLEAN ){
 			boolean bool = cell.getBooleanCellValue();
@@ -145,27 +178,13 @@ public class DataType {
 		return null;
 	}
 	
-	public String toString(){
-		String str = dataTypeName;
-		if ( dataTypeName.equals("Decimal") ){
-			str+="("+String.valueOf(totalLength)+",";
-			str+=String.valueOf(decimalLength)+")";
-		}
-		if ( dataTypeName.equals("Enumerable") ){
-			for ( String enumVal : enumVals ){
-				str += " \""+enumVal+"\"";
-			}
-		}
-		
-		return str;
-	}
-	
-	
-	public String getEnumValues(){
-		assert( enumVals != null );
-		return enumVals.toString();
-	}
-	
+	/**
+	 * Checks if the number provided is the correct data type.
+	 * 
+	 * @param number to check
+	 * @param isInt if the number is an integer
+	 * @return 
+	 */
 	private boolean isValidNumber(double number, boolean isInt){
 		if ( isInt && dataTypeName.equals("Integer") ){ return true; }
 		if ( isInt && dataTypeName.equals("Decimal")){ return String.valueOf(number).length() <= totalLength; }
@@ -180,27 +199,38 @@ public class DataType {
 		return false;
 	}
 	
+	/**
+	 * Checks if a string either "true" or "false"
+	 * @param text to check
+	 * @return if the text is "true" or "false"
+	 */
 	private boolean isBooleanString(String text){
 		return "true".equals(text) || "false".equals(text);
 	}
 	
-	public static String cellTypeToString(int cellType){
-		switch ( cellType ){
-		case Cell.CELL_TYPE_BLANK:
-			return "BLANK";
-		case Cell.CELL_TYPE_BOOLEAN:
-			return "Boolean";
-		case Cell.CELL_TYPE_ERROR:
-			return "ERROR";
-		case Cell.CELL_TYPE_FORMULA:
-			return "Formula";
-		case Cell.CELL_TYPE_NUMERIC:
-			return "Numeric";
-		case Cell.CELL_TYPE_STRING:
-			return "String";
-		default:
-			return "Index of "+cellType+" is not a valid cell type";
+	/**
+	 * Returns the string representation of the list of enumerable values
+	 * @return the string representation of the list of enumerable values
+	 */
+	public String getEnumValues(){
+		assert( enumVals != null );
+		return enumVals.toString();
+	}
+	
+	@Override
+	public String toString(){
+		String str = dataTypeName;
+		if ( dataTypeName.equals("Decimal") ){
+			str+="("+String.valueOf(totalLength)+",";
+			str+=String.valueOf(decimalLength)+")";
 		}
+		if ( dataTypeName.equals("Enumerable") ){
+			for ( String enumVal : enumVals ){
+				str += " \""+enumVal+"\"";
+			}
+		}
+		
+		return str;
 	}
 }
 
