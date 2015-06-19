@@ -15,7 +15,7 @@ Usage is easy. Once you have the program running, browse for an input excel file
 
 To set up your format file, use the menu to select **File→Edit format file**. This should open the format file in your operating system's default text editor. For information about setting up a format file see [How to use the format file](link to format file readme)
 
-**[How to use the format file](link to format file readme)**
+**[How to use the format file](https://github.com/WabashCannon/excel-patcher/Format_Manual.md)**
 
 Installation
 ------
