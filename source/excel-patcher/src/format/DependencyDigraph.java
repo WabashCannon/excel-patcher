@@ -10,11 +10,6 @@ public class DependencyDigraph {
 	/** Set of all the nodes in the graph */
 	Set<Node> nodes = new HashSet<Node>();
 	
-	
-	public DependencyDigraph(){
-		Node node = new Node("test");
-	}
-	
 	/**
 	 * Adds a childNode with the given name to the parent node
 	 * if it exists. Otherwise, creates it and adds it.
@@ -73,6 +68,18 @@ public class DependencyDigraph {
 		Node node = new Node(nodeName);
 		nodes.add(node);
 		return node;
+	}
+	
+	public Set<String> getLeaves(){
+		Set<String> leaves = new HashSet<String>();
+		
+		for ( Node node : nodes ){
+			if ( node.children.size() == 0 ){
+				leaves.add(node.getName());
+			}
+		}
+		
+		return leaves;
 	}
 	
 	//###########################################################

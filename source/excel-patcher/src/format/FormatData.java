@@ -12,7 +12,7 @@ import utils.Logger;
 
 public class FormatData {
 	/** The finalized set of minimal dependencies for this sheet */
-	Set<String> finalDependencies = null;
+	DependencyDigraph dependencyGraph = null;
 	/** The container of format data for each column */
 	Vector<ColumnFormatData> columnFormats = new Vector<ColumnFormatData>();
 	
@@ -44,6 +44,17 @@ public class FormatData {
 				Logger.log("Error", line);
 			}
 		}
+		
+		dependencyGraph = new DependencyDigraph();
+		for ( ColumnFormatData columnFormat : columnFormats ){
+			String columnName = columnFormat.getTitle();
+			Set<String> columnDependencies = columnFormat.getDependencies();
+			for ( String dependency : columnDependencies ){
+				dependencyGraph.addChildToParent(columnName, dependency);
+			}
+		}
+		
+		
 	}
 	
 	// ####################################################
@@ -108,11 +119,14 @@ public class FormatData {
 	 * @return the minimal set of dependency column titles for the sheet
 	 */
 	public Set<String> getAllDependencies(){
+		return dependencyGraph.getLeaves();
+		/*
 		if ( finalDependencies == null ){
 			Logger.log("Error", "Tried to get minimal dependencies before they"
 					+"were compiled");
 		}
 		return finalDependencies;
+		*/
 	}
 	
 	/**
@@ -125,17 +139,6 @@ public class FormatData {
 		allHeaders.addAll(getColumnTitles());
 		allHeaders.removeAll(getAllDependencies());
 		return allHeaders;
-	}
-	
-	/**
-	 * Compiles the dependencies minimal dependency list for the sheet.
-	 * Assumes that all of the columnFormats have already compiled dependencies
-	 */
-	public void compileDependencies(){
-		finalDependencies = new HashSet<String>();
-		for ( ColumnFormatData columnFormat : columnFormats ){
-			finalDependencies.addAll( columnFormat.getFinalDependencies() );
-		}
 	}
 	
 	// ####################################################

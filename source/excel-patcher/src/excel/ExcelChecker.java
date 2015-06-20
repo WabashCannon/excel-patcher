@@ -14,7 +14,6 @@ import utils.Logger;
 import excel.ExcelUtils.UrgencyLevel;
 import format.ColumnFormatData;
 import format.DataType;
-import format.DependencyTree;
 import format.FormatData;
 
 /**
@@ -124,40 +123,6 @@ public class ExcelChecker {
 					Logger.log("Error", "Format data for column "+title+" depended on column "
 							+dep+" but "+dep+" was not found in the input file");
 				}
-			}
-		}
-		
-		//Check for cyclic dependencies by making a dependency tree
-		for ( String title : columnTitles ){
-			DependencyTree tree = new DependencyTree(title);
-			ColumnFormatData columnFormat = formatData.getColumnFormat(title);
-			Set<String> deps = columnFormat.getDependencies();
-			addChildDependency(tree, title, deps);
-			columnFormat.setFinalDependencies( tree.getLeaves() );
-		}
-		
-		formatData.compileDependencies();
-	}
-	
-	/**
-	 * Used to recursively build dependency trees;
-	 * @param tree
-	 * @param parentName
-	 * @param childrenNames
-	 */
-	private void addChildDependency(DependencyTree tree,
-			String parentName, Set<String> childrenNames)
-	{
-		boolean addedChild = tree.addToChild(parentName, childrenNames);
-		if ( !addedChild ){
-			return;
-		}
-		for ( String childName : childrenNames ){
-			ColumnFormatData colFormat = formatData.getColumnFormat(childName);
-			if ( colFormat == null ){
-				return;
-			} else {
-				addChildDependency(tree, childName, colFormat.getDependencies());
 			}
 		}
 	}
