@@ -19,10 +19,19 @@ import javax.swing.JPanel;
 import utils.FileManager;
 import utils.Logger;
 
+/**
+ * This class contains the code's main function and is the JFrame that
+ * everything sits it.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class GUI extends JFrame {
 	private static final long serialVersionUID = -7796330929953296934L;
 	
-	
+	/**
+	 * Creates all of the content for the GUI
+	 */
 	private void createContent(){
 		this.setLayout( new BorderLayout() );
 		
@@ -47,6 +56,9 @@ public class GUI extends JFrame {
 		Logger.setPrintStream( "Error", cPanel.getPrintStream() );
 	}
 	
+	/**
+	 * Creates the GUI's menu bar
+	 */
 	private void createMenuBar(){
 		//Init the menu bar
 		JMenuBar menubar = new JMenuBar();
@@ -166,6 +178,11 @@ public class GUI extends JFrame {
 // #####################################################################################
 // ### Entry point of code
 // #####################################################################################
+	/**
+	 * Entry point of the code for running as an application. It just creates
+	 * a new GUI and makes it visible.
+	 * @param args
+	 */
 	public static void main(String[] args){
 		EventQueue.invokeLater(new Runnable() {
 	        
@@ -177,6 +194,9 @@ public class GUI extends JFrame {
         });
 	}
 	
+	/**
+	 * Creates a new GUI and initializes the loggers
+	 */
 	public GUI(){
 		//TODO: Init logger
 		String defaultLogger = Logger.getDefaultLoggerName();
@@ -197,8 +217,13 @@ public class GUI extends JFrame {
 // #####################################################################################
 // ### Global instance implementation
 // #####################################################################################
+	/** Global instance of gui */
 	private static GUI gui = null;
 	
+	/**
+	 * Returns the GUI instance
+	 * @return the GUI instance
+	 */
 	public static GUI getGUI(){
 		assert( gui != null );
 		return gui;

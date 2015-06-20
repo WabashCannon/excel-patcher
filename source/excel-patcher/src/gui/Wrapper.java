@@ -14,19 +14,34 @@ import utils.Logger;
 import excel.ExcelChecker;
 import format.FormatData;
 
+/**
+ * Wrapper to interface between GUI side and ExcelChecker side.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class Wrapper {
 	//Tmp vars
+	/** The hard coded path to the format file - should be changed to
+	 * be a choosable path */
 	public static final String FORMAT_FILE_PATH = "rsc/format.txt";
+	/** The hard coded output file name - should be changed to be a
+	 * choosable path */
 	public static final String OUTPUT_FILE_NAME = "output.xlsx";
 	
 	/** Input file path */
 	String inputFilePath = null;
 	/** Output file path */
 	String outputFilePath = null;
-	/** Settings */
+	/** Index set for boolean settings */
 	public enum SettingName{Color, Comment, Delete, FixDataType};
+	/** The current state of the settings */
 	private boolean[] settings = new boolean[SettingName.values().length];
 	
+	/**
+	 * Creates a new wrapper. Attempts to load former input and output paths
+	 * and inits with default settings - Should change to load and save settings
+	 */
 	public Wrapper(){
 		setInputFile( loadFromFile(INPUT_FILE_NAME_PATH) );
 		setOutputFile( loadFromFile(OUTPUT_FILE_NAME_PATH) );
@@ -40,7 +55,9 @@ public class Wrapper {
 	}
 	
 	
-	//Temporary place holder methods
+	/**
+	 * Runs the main check on the excel file
+	 */
 	public void checkFile(){
 		if ( inputFilePath == null ){
 			Logger.log("Please select an input file.");
@@ -83,6 +100,9 @@ public class Wrapper {
 		
 	}
 	
+	/**
+	 * Cleans the output excel file
+	 */
 	public void cleanFile(){
 		Thread thread = new Thread( new Runnable(){
 			@Override
@@ -113,14 +133,33 @@ public class Wrapper {
 // #####################################################################################
 // ### Getters and setters
 // #####################################################################################
+	/**
+	 * Sets the specified setting to the given value
+	 * 
+	 * @param name of setting to set
+	 * @param value the setting should have
+	 */
 	public void setSetting(SettingName name, boolean value){
 		settings[name.ordinal()] = value;
 	}
 	
+	/**
+	 * Returns the value of the specified setting
+	 * 
+	 * @param name of setting to check
+	 * @return the value of the specified setting
+	 */
 	public boolean getSetting(SettingName name){
 		return settings[name.ordinal()];
 	}
 	
+	/**
+	 * Sets the input file to be the specified filePath if it is valid.
+	 * If it isn't, the file path will remain unchanged.
+	 * 
+	 * @param filePath to change to
+	 * @return if the change was successful
+	 */
 	public boolean setInputFile(String filePath){
 		if ( filePath == null ){
 			return false;
@@ -135,6 +174,11 @@ public class Wrapper {
 		}
 	}
 	
+	/**
+	 * Sets the output file path 
+	 * @param filePath
+	 * @return if the change was successful
+	 */
 	public boolean setOutputFile(String filePath){
 		if ( DesktopApi.getOs().isLinux() ){
 			outputFilePath = filePath+"/";
@@ -146,20 +190,36 @@ public class Wrapper {
 		return true;
 	}
 	
+	/**
+	 * Returns the current input file path
+	 * 
+	 * @return the current input file path
+	 */
 	public String getInputFile(){
 		return inputFilePath;
 	}
 	
+	/**
+	 * Returns the current output file path
+	 * 
+	 * @return the current output file path
+	 */
 	public String getOutputFile(){
 		return outputFilePath;
 	}
 	
+	/**
+	 * Attempts to open the input file in the OS's default program
+	 */
 	public void openInputFile(){
 		if ( inputFilePath != null){
 			DesktopApi.open(new File(inputFilePath));
 		}
 	}
 	
+	/**
+	 * Attempts to open the output file in the OS's default program
+	 */
 	public void openOutputFile(){
 		if ( outputFilePath != null ){
 			File file = new File(outputFilePath+OUTPUT_FILE_NAME);
@@ -177,6 +237,11 @@ public class Wrapper {
 	/** Input file name setting */
 	String OUTPUT_FILE_NAME_PATH = "rsc/outputFileName.txt";
 	
+	/**
+	 * Reads a text file and returns the first line
+	 * @param filename to read from
+	 * @return the first line of the text file
+	 */
 	@SuppressWarnings("resource")
 	private String loadFromFile(String filename){
 		try{
@@ -195,6 +260,12 @@ public class Wrapper {
 		return null;
 	}
 	
+	/**
+	 * Utility method to save a string to a text file
+	 * 
+	 * @param filePath to save text to
+	 * @param content to write to the file
+	 */
 	private void writeToFile(String filePath, String content){
 		if ( filePath == null || content == null ){
 			return;
@@ -206,22 +277,18 @@ public class Wrapper {
 			Logger.logVerbose("Failed to write to file at location: "+filePath+" with content of "+content);
 			Logger.logVerbose(e.getMessage());
 		}
-		/*
-		Path path = Paths.get(filePath);
-		Set<String> output = new HashSet<String>();
-		output.add(content);
-		try {
-			Files.write(path, output);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		*/
 	}
 // #####################################################################################
 // ### Global instance implementation
 // #####################################################################################
+	/** Global instance of the wrapper */
 	private static Wrapper wrapper = null;
 	
+	/**
+	 * Returns the global instance of the wrapper
+	 * 
+	 * @return the global instance of the wrapper
+	 */
 	public static Wrapper getWrapper(){
 		if ( wrapper == null ){
 			wrapper = new Wrapper();

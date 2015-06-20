@@ -8,10 +8,20 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+/**
+ * The JPanel containing the console.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class ConsolePanel extends JPanel {
 	private static final long serialVersionUID = -214261387766729929L;
-	private PrintStream con;
+	/** The printstream that prints to the TextAreaOutputStream */
+	private PrintStream printStream;
 	
+	/**
+	 * Creates a new console panel and sets the System to print to it.
+	 */
 	public ConsolePanel(){
 		this.setBackground( new Color( 0, 0, 255) );
 		
@@ -26,12 +36,17 @@ public class ConsolePanel extends JPanel {
 		add(scrollPanel, BorderLayout.CENTER);
 		//scrollPanel.add(console);
 		
-		con=new PrintStream(new TextAreaOutputStream(console));
-		System.setOut(con);
-		System.setErr(con);
+		printStream=new PrintStream(new TextAreaOutputStream(console));
+		System.setOut(printStream);
+		System.setErr(printStream);
 	}
 	
+	/**
+	 * Returns the print stream of this ConsolePanel
+	 * 
+	 * @return the print stream of this ConsolePanel
+	 */
 	public PrintStream getPrintStream(){
-		return con;
+		return printStream;
 	}
 }

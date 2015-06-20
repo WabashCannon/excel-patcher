@@ -18,12 +18,22 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import utils.Logger;
 
+/**
+ * The JPanel containing the input/output path text fields and the respective
+ * browse and open buttons.
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class FileBrowserPanel extends JPanel {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1155275561612671359L;
+	
+	/**
+	 * Creates a new file browser panel with the specified input filePath and
+	 * output filePath
+	 * @param inputFile
+	 * @param outputFile
+	 */
 	public FileBrowserPanel(String inputFile, String outputFile){
 		this.inputFile = inputFile;
 		this.outputFile = outputFile;
@@ -38,16 +48,27 @@ public class FileBrowserPanel extends JPanel {
 		createBrowserLines();
 	}
 	
+	/**
+	 * Creates a new file browser panel with empty fields.
+	 */
 	public FileBrowserPanel(){
 		this(null, null);
 	}
 	
+	/** The inputFilePath */
 	private String inputFile = null;
+	/** The outputFilePath */
 	private String outputFile = null;
 	
+	/** The size of the border in pixels */
 	private int borderSize = 5;
+	/** Each row's JPanel border */
 	Border border = new EmptyBorder(borderSize, borderSize, borderSize, borderSize);
+	/** The label border */
 	Border border2 = new EmptyBorder(borderSize, borderSize, borderSize, borderSize);
+	/**
+	 * Creates text fields and buttons
+	 */
 	private void createBrowserLines(){
 		JPanel inputPanel = new JPanel();
 		inputPanel.setBorder(border);

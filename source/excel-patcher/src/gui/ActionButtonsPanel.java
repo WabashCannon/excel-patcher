@@ -7,10 +7,19 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+/**
+ * The gui panel that contains the "Check" and "Clean" buttons
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class ActionButtonsPanel extends JPanel {
-	
 	private static final long serialVersionUID = -8805326649043675900L;
-
+	
+	/**
+	 * Creates the action buttons panel and populates it with functioning
+	 * buttons.
+	 */
 	public ActionButtonsPanel(){
 		setLayout( new BoxLayout(this, BoxLayout.X_AXIS) );
 		
