@@ -11,15 +11,23 @@ import format.conditional.Specification;
 import utils.Logger;
 
 public class FormatData {
-	Set<String> finalDependencies;
+	/** The finalized set of minimal dependencies for this sheet */
+	Set<String> finalDependencies = null;
+	/** The container of format data for each column */
 	Vector<ColumnFormatData> columnFormats = new Vector<ColumnFormatData>();
 	
-	public FormatData(String formatFilename){
+	/**
+	 * Creates a new format data from the format file located at
+	 * the specified formatFilePath
+	 * 
+	 * @param formatFilePath
+	 */
+	public FormatData(String formatFilePath){
 		Scanner scanner = null;
 		try{
-			scanner = new Scanner( new FileInputStream(formatFilename) );
+			scanner = new Scanner( new FileInputStream(formatFilePath) );
 		} catch ( FileNotFoundException e ){
-			Logger.log("Error", "Format file was not found at location "+formatFilename);
+			Logger.log("Error", "Format file was not found at location "+formatFilePath);
 		}
 		
 		while ( scanner.hasNextLine() ){
@@ -41,10 +49,22 @@ public class FormatData {
 	// ####################################################
 	// ### Getters and Setters
 	// ####################################################
+	/**
+	 * Returns the number of columns that format data exists for.
+	 * 
+	 * @return the number of columns that format data exists for.
+	 */
 	public int getNumColumns(){
 		return columnFormats.size();
 	}
 	
+	/**
+	 * Returns a vector containing all of the column titles for which
+	 * format data exists.
+	 * 
+	 * @return a vector containing all of the column titles for which
+	 * format data exists.
+	 */
 	public Vector<String> getColumnTitles(){
 		Vector<String> titles = new Vector<String>();
 		for ( ColumnFormatData columnFormat : columnFormats ){
@@ -53,6 +73,13 @@ public class FormatData {
 		return titles;
 	}
 	
+	/**
+	 * Returns the ColumnFormatData corresponding to the specified column
+	 * title if it is found, null otherwise.
+	 * 
+	 * @param columnTitle to get ColumnFormatData for
+	 * @return the ColumnFormatData corresponding to the columnTitle provided
+	 */
 	public ColumnFormatData getColumnFormat(String columnTitle){
 		for ( ColumnFormatData columnFormat : columnFormats ){
 			if ( columnFormat.getTitle().equals(columnTitle) ){
@@ -63,6 +90,10 @@ public class FormatData {
 		return null;
 	}
 	
+	/**
+	 * Removes the column format data corresponding to the provided column title.
+	 * @param title of the column to remove
+	 */
 	public void removeColumn(String title){
 		for ( int i = columnFormats.size()-1 ; i >= 0 ; i-- ){
 			if ( columnFormats.get(i).getTitle().equals(title) ){
@@ -71,13 +102,24 @@ public class FormatData {
 		}
 	}
 	
+	/**
+	 * Returns the minimal set of dependency column titles for the sheet.
+	 * 
+	 * @return the minimal set of dependency column titles for the sheet
+	 */
 	public Set<String> getAllDependencies(){
 		if ( finalDependencies == null ){
-			Logger.log("Error", "Tried to read all dependencies before they were compiled");
+			Logger.log("Error", "Tried to get minimal dependencies before they"
+					+"were compiled");
 		}
 		return finalDependencies;
 	}
 	
+	/**
+	 * Returns the set of independent columns in the sheet.
+	 * 
+	 * @return the set of independent columns in the sheet
+	 */
 	public Set<String> getAllNonDependencies(){
 		Set<String> allHeaders = new HashSet<String>();
 		allHeaders.addAll(getColumnTitles());
@@ -85,9 +127,10 @@ public class FormatData {
 		return allHeaders;
 	}
 	
-	// ####################################################
-	// ### "Late" initialization methods
-	// ####################################################
+	/**
+	 * Compiles the dependencies minimal dependency list for the sheet.
+	 * Assumes that all of the columnFormats have already compiled dependencies
+	 */
 	public void compileDependencies(){
 		finalDependencies = new HashSet<String>();
 		for ( ColumnFormatData columnFormat : columnFormats ){
@@ -98,6 +141,13 @@ public class FormatData {
 	// ####################################################
 	// ### Private methods for loading
 	// ####################################################
+	/**
+	 * Loads the data from the format file and stores it in the
+	 * column format data vector.
+	 * 
+	 * @param scanner that 
+	 * @param title
+	 */
 	private void loadColumnFormat(Scanner scanner, String title){
 		ColumnFormatData columnFormat = new ColumnFormatData(title);
 		String line = "";
@@ -130,10 +180,16 @@ public class FormatData {
 				Logger.log("Error", "Found duplicate decleration of column "+columnFormat.getTitle()+" in format file");
 			}
 		}
-		//System.out.println(columnFormat.toString());
 		columnFormats.add(columnFormat);
 	}
 	
+	/**
+	 * Utility method for determining if a line should be skipped when
+	 * reading the format file
+	 * 
+	 * @param line to check
+	 * @return if it is a comment line
+	 */
 	private boolean shouldIgnore(String line){
 		if ( line.isEmpty() || line.trim().startsWith("#") ) {
 			return true;
@@ -141,12 +197,26 @@ public class FormatData {
 		return false;
 	}
 	
+	/**
+	 * Utility method to determine if a line is the first line in
+	 * a column format declaration
+	 * 
+	 * @param line to test
+	 * @return if the line is the first one in a column format declaration
+	 */
 	private boolean isStartOfColumnDeclaration(String line){
 		line = line.trim();
 		boolean endsWithBrace = line.endsWith("{");
 		return endsWithBrace;
 	}
 	
+	/**
+	 * Utility method to determine if a line is the last line in
+	 * a column format declaration
+	 * 
+	 * @param line to test
+	 * @return if the line is the last one in a column format declaration
+	 */
 	private boolean isEndOfColumnDeclaration(String line){
 		line = line.trim();
 		return line.equalsIgnoreCase("}");

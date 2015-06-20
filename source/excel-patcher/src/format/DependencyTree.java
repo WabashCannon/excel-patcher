@@ -7,15 +7,35 @@ import java.util.Set;
 
 import utils.Logger;
 
+/**
+ * A data structure designed to be used when determining the dependencies
+ * of column's format data.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class DependencyTree {
+	/** The root node in the tree */
     private Node root;
-
+    
+    /**
+     * Creates a new dependency tree with the given root name.
+     * 
+     * @param rootName name of the root node in the tree
+     */
     public DependencyTree(String rootName) {
         root = new Node();
         root.name = rootName;
         root.children = new ArrayList<Node>();
     }
     
+    /**
+     * Adds a set of new child nodes to the specified child node
+     * 
+     * @param childToAddTo
+     * @param newChildren
+     * @return if any children were added
+     */
     public boolean addToChild(String childToAddTo, Set<String> newChildren){
     	Node nodeToAddTo = findChildNode(childToAddTo, root);
     	assert( nodeToAddTo != null );
@@ -40,6 +60,14 @@ public class DependencyTree {
     	return addedAChild;
     }
     
+    /**
+     * Tries to find a child node with the given name. Returns the node
+     * if successful, and null otherwise.
+     * 
+     * @param name of the child node to search for
+     * @param parent node to search
+     * @return the child node if found, null otherwise
+     */
     public Node findChildNode(String name, Node parent){
     	//If it is this node, we're done, should only really happen when it's root
     	if ( parent.name.equals(name) ){
@@ -66,6 +94,10 @@ public class DependencyTree {
     	return null;
     }
     
+    /**
+     * Returns the set of leaves in the tree
+     * @return
+     */
     public Set<String> getLeaves(){
     	Set<String> leaves = root.getLeaves();
     	if ( leaves.contains(root.name) ){
@@ -74,19 +106,39 @@ public class DependencyTree {
     	return leaves;
     }
     
+    @Override
     public String toString(){
     	return root.toString(root.name.length());
     }
-
+    
+    /**
+     * Node object used to build dependency tree
+     * 
+     * @author Ashton Dyer (WabashCannon)
+     *
+     */
     public static class Node {
+    	/** Name of the node */
         private String name;
+        /** The node's parent */
         private Node parent;
+        /** The children of this node */
         private List<Node> children;
         
+        /**
+         * Returns if this node is a leaf node
+         * 
+         * @return if this node is a leaf node
+         */
         public boolean isLeaf(){
         	return children == null || children.size() == 0;
         }
         
+        /**
+         * Returns the set of leaves branching from this node
+         * 
+         * @return the set of leaves branching from this node
+         */
         public Set<String> getLeaves(){
         	Set<String> leaves = new HashSet<String>();
         	if ( isLeaf() ){
@@ -100,6 +152,12 @@ public class DependencyTree {
         	}
         }
         
+        /**
+         * Utility method for cleanly printing trees.
+         * 
+         * @param depth of this node in the tree
+         * @return a string representation of this node
+         */
         public String toString(int depth){
         	if ( isLeaf() ){return name+"\n";}
         	String str = name;
@@ -116,13 +174,23 @@ public class DependencyTree {
         	}
         	return str;
         }
-
+        
+        /**
+         * Returns this node's parent
+         * 
+         * @return this node's parent
+         */
 		public Node getParent() {
 			return parent;
 		}
-
-		public void setParent(Node parent) {
-			this.parent = parent;
+		
+		/**
+		 * Sets this node's parent
+		 * 
+		 * @param newParent to set
+		 */
+		public void setParent(Node newParent) {
+			this.parent = newParent;
 		}
     }
 }
