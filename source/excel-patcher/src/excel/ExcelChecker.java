@@ -315,10 +315,16 @@ public class ExcelChecker {
 		if ( errors.size() == 0 ){
 			return true;
 		} else {
-			//Comment on a cell that had errors and was not fillable
-			addCellComment(cell, "--- Format Errors", UrgencyLevel.WARNING);
-			addCellComments(cell, errors, UrgencyLevel.WARNING);
-			return false;
+			fillCell(cell, format);
+			errors = checkCellFormat(cell, format);
+			
+			if ( errors.size() > 0 ){
+				//Comment on a cell that had errors and was not fillable
+				addCellComment(cell, "--- Format Errors", UrgencyLevel.WARNING);
+				addCellComments(cell, errors, UrgencyLevel.WARNING);
+				return false;
+			}
+			return true;
 		}
 		/*
 		//If there are no errors
@@ -434,18 +440,24 @@ public class ExcelChecker {
 	 * @return if the condition is met
 	 */
 	private boolean checkMaxCharacterCount(Cell cell, ColumnFormatData format){
+		//Get the max character count
 		int maxCharCount = format.getMaxCharacterCount();
 		
+		// Need special handling for dates
 		if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC 
 				&& DateUtil.isCellDateFormatted(cell)) {
 			return maxCharCount >= 10;
 		}
 		
+		//For "formula" boolean contents, we want the length of "false"
+		// or "true" not "TRUE()" or "FALSE()". Ignores difference in 4 and 5
+		// characters.
 		String contents = ExcelUtils.getCellContentsAsString(cell);
 		if ( contents.equals("TRUE()") || contents.equals("FALSE()") ){
-			contents = "true";
+			return maxCharCount > 5;
 		}
 		
+		//If the above don't apply, just check the contents
 		return contents.length() <= maxCharCount;
 	}
 	
@@ -507,12 +519,16 @@ public class ExcelChecker {
 	private boolean fillCell(Cell cell, ColumnFormatData format){
 		assert( cell != null );
 		RichTextString autofillValue = format.getValue();
-		if ( autofillValue != null ){
-			String comm = "Changed to fix a wrong value. Had value of "+ExcelUtils.getCellContentsAsString(cell);
+		if ( autofillValue != null ){			
+			//Comment on the change
+			String comm = "Changed to fix a wrong value. Had value of \"" 
+					+ ExcelUtils.getCellContentsAsString(cell) + "\".";
+			addCellComment(cell, comm , UrgencyLevel.MINOR);
 			
+			//Clear the cell and set the new value
 			cell.setCellType(Cell.CELL_TYPE_BLANK);
 			cell.setCellValue( autofillValue );
-			addCellComment(cell, comm , UrgencyLevel.MINOR);
+			
 			return true;
 		} else {
 			return false;

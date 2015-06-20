@@ -44,3 +44,11 @@ OutputDec1{
 		InputDec2 when InputEnum1 is "Enum1Val2";
 		"0.0" when InputEnum1 is "Enum1Val3"
 }
+
+AutoFill1{
+	Required: yes
+	Type: String
+	Value: "Val1" when InputEnum1 is "Enum1Val1";
+		"Val2" when InputEnum1 is "Enum1Val2";
+		"Val3" when InputEnum1 is "Enum1Val3"
+}
