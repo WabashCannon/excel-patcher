@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
+import format.conditional.Specification;
 import utils.Logger;
 
 /**

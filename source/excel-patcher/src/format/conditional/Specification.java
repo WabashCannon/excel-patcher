@@ -1,28 +1,40 @@
-package format;
+package format.conditional;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import format.conditional.ConditionalExpression;
+import format.DataType;
+import format.KeywordChecker;
 import utils.Logger;
 
 /**
- * this really needs to be something with generic type arguments, but it's too late now
- * @author ashton
+ * This class acts as the container and interface for specifications.
+ * 
+ * @author Ashton Dyer (WabashCannon)
  *
  */
 public class Specification {
 	/** Comprehensive list of acceptable specification keywords */
 	public static final List<String> SPECIFICATION_KEYWORDS = Arrays.asList(new String[]
 			{"Required", "Type", "MaxPossibleCharacters", "Value"});
-	
+	/** The specification type, from the list of SPECIFICATION_KEYWORDS */
 	private String type;
+	/** The value, or argument, of this specification */
 	private String value;
+	/** The data type object of this specification. This should only be
+	 * stored when type is "Type" */
 	private DataType dataType;
+	/** The conditional expression for this specification. This should
+	 * only be stored when type is Required or Value */
 	private ConditionalExpression conditionalExpression = null;
 	
+	/**
+	 * Creates a new specification from the given line.
+	 * 
+	 * @param line to generate the specification from
+	 */
 	public Specification(String line){
 		//Split the line and check the keyword
 		String[] splitLine = line.split(":");
@@ -50,10 +62,19 @@ public class Specification {
 	// ####################################################
 	// ### Getters and setters
 	// ####################################################
+	/**
+	 * Returns this specification's type
+	 * @return this specification's type
+	 */
 	public String getType(){
 		return type;
 	}
 	
+	/**
+	 * Returns the value of this specification.
+	 * 
+	 * @return the value of this specification
+	 */
 	public String getValue(){
 		if ( type.equals("Required") ){
 			String value = conditionalExpression.getValue();
@@ -73,13 +94,11 @@ public class Specification {
 		return null;
 	}
 	
-	/*
-	@Override
-	public String toString(){
-		return getType()+": "+getValue();
-	}
-	*/
-	
+	/**
+	 * Returns the set of column titles on which this specification depends.
+	 * 
+	 * @return the set of column titles on which this specification depends
+	 */
 	public Set<String> getDependencies(){
 		if ( conditionalExpression != null ){
 			return conditionalExpression.getDependencies();

@@ -27,7 +27,7 @@ public class ConditionalExpression {
 	 * 
 	 * @param text to create this conditional expression from
 	 */
-	public ConditionalExpression(String text){
+	protected ConditionalExpression(String text){
 		text = text.trim();
 		
 		String[] lines = text.split(";");
@@ -44,7 +44,7 @@ public class ConditionalExpression {
 	 * 
 	 * @return value of this multi-part conditional expression
 	 */
-	public String getValue(){
+	protected String getValue(){
 		for ( SubConditionalExpression expression : expressions ){
 			if ( expression.isTrue() ){
 				return expression.getValue();
@@ -63,7 +63,7 @@ public class ConditionalExpression {
 	 * Provides the dependency set of this expression.
 	 * @return this expressions dependencies
 	 */
-	public Set<String> getDependencies(){
+	protected Set<String> getDependencies(){
 		Set<String> deps = new HashSet<String>();
 		for ( SubConditionalExpression expression : expressions ){
 			deps.addAll( expression.getDependencies() );
