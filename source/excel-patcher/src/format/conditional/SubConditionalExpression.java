@@ -17,7 +17,7 @@ import format.KeywordChecker;
  */
 public class SubConditionalExpression {
 	/** value of the conditional expression when it evaluates to true */
-	private String value;
+	private String value = null;
 	/** The conditions that comprise the logical part of the expression */
 	private Vector<Condition> conditions = new Vector<Condition>();
 	/** The logical comparators used to relate the conditions */
@@ -61,8 +61,14 @@ public class SubConditionalExpression {
 	 */
 	protected Vector<String> getDependencies(){
 		Vector<String> deps = new Vector<String>();
+		// Add dependencies due to conditions
 		for ( Condition cond : conditions ){
 			deps.addAll( cond.getDependencies() );
+		}
+		//Add dependencies for value
+		if ( value != null && !KeywordChecker.isBoolean(value) &&
+				!KeywordChecker.isConstant(value) ){
+			deps.add(value);
 		}
 		
 		return deps;

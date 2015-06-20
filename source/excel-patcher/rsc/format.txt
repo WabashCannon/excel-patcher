@@ -28,3 +28,19 @@ InputEnum1{
 	Required: yes
 	Type: Enumerable "Enum1Val1" "Enum1Val2" "Enum1Val3"
 }
+
+OutputInt1{
+	Required: yes
+	Type: Integer
+	Value: InputInt1 when InputEnum1 is "Enum1Val1";
+		InputInt2 when InputEnum1 is "Enum1Val2";
+		"0" when InputEnum1 is "Enum1Val3"
+}
+
+OutputDec1{
+	Required: yes
+	Type: Integer
+	Value: InputDec1 when InputEnum1 is "Enum1Val1";
+		InputDec2 when InputEnum1 is "Enum1Val2";
+		"0.0" when InputEnum1 is "Enum1Val3"
+}
