@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import utils.FileManager;
 import utils.Logger;
+import utils.Logger.LogLevel;
 
 /**
  * This class contains the code's main function and is the JFrame that
@@ -202,6 +203,8 @@ public class GUI extends JFrame {
 		String defaultLogger = Logger.getDefaultLoggerName();
 		Logger.setEnablePrefix(defaultLogger, true);
 		Logger.setEnablePrefix("Error", true);
+		
+		Logger.setVerbosity(defaultLogger, LogLevel.VERBOSE);
 		
 		gui = this;
 		

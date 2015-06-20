@@ -70,6 +70,11 @@ public class DependencyDigraph {
 		return node;
 	}
 	
+	/**
+	 * Returns the set of titles of the leaf nodes in the graph.
+	 * 
+	 * @return the set of titles of the leaf nodes in the graph.
+	 */
 	public Set<String> getLeaves(){
 		Set<String> leaves = new HashSet<String>();
 		
@@ -80,6 +85,11 @@ public class DependencyDigraph {
 		}
 		
 		return leaves;
+	}
+	
+	@Override
+	public String toString(){
+		return nodes.toString();
 	}
 	
 	//###########################################################
@@ -168,9 +178,15 @@ public class DependencyDigraph {
 			return name;
 		}
 		
+		//Override for comparable interface
 		@Override
 		public int compareTo(Node otherNode) {
 			return getName().compareTo(otherNode.getName());
+		}
+		
+		@Override 
+		public String toString(){
+			return name;
 		}
 	}
 }

@@ -12,9 +12,9 @@ import utils.Logger;
 
 public class FormatData {
 	/** The finalized set of minimal dependencies for this sheet */
-	DependencyDigraph dependencyGraph = null;
+	public DependencyDigraph dependencyGraph = null;
 	/** The container of format data for each column */
-	Vector<ColumnFormatData> columnFormats = new Vector<ColumnFormatData>();
+	private Vector<ColumnFormatData> columnFormats = new Vector<ColumnFormatData>();
 	
 	/**
 	 * Creates a new format data from the format file located at
@@ -54,6 +54,8 @@ public class FormatData {
 			}
 		}
 		
+		Logger.setEnablePrefix("Graph", true);
+		Logger.log("Graph", dependencyGraph.toString());
 		
 	}
 	
@@ -76,8 +78,8 @@ public class FormatData {
 	 * @return a vector containing all of the column titles for which
 	 * format data exists.
 	 */
-	public Vector<String> getColumnTitles(){
-		Vector<String> titles = new Vector<String>();
+	public Set<String> getColumnTitles(){
+		Set<String> titles = new HashSet<String>();
 		for ( ColumnFormatData columnFormat : columnFormats ){
 			titles.add( columnFormat.getTitle() );
 		}

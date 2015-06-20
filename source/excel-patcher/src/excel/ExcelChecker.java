@@ -1,5 +1,11 @@
 package excel;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -11,6 +17,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import utils.Logger;
+import utils.Utils;
 import excel.ExcelUtils.UrgencyLevel;
 import format.ColumnFormatData;
 import format.DataType;
@@ -27,8 +34,15 @@ public class ExcelChecker {
 	/** Global instance */
 	public static ExcelChecker checker = null;
 	
-	/** Current cell to querry. */
-	public Cell currentCell;
+	// State data used while checking
+	/** Current row to query */
+	private Row currentRow;
+	/** Current cell to query. */
+	private Cell currentCell;
+	
+	/** Enum for indexing the status of dependency resolution for
+	 * a column */
+	public enum ResolvedStatus{ RESOLVED, UNRESOLVED, NOT_CHECKED };
 	
 	//Settings
 	/** Setting determining if non-required cells should be deleted */
@@ -70,25 +84,6 @@ public class ExcelChecker {
 	}
 	
 	/**
-	 * Cleans the excel sheet of any comments and coloring
-	 */
-	public void cleanOutput(){
-		for ( int rowIndex : sheetData.getLoanRowIndexes() ){
-			Row row = sheet.getRow(rowIndex);
-			
-			for ( String header : formatData.getColumnTitles() ){
-				int columnIndex = sheetData.getColumnIndex(header);
-				Cell cell = row.getCell(columnIndex);
-				if ( cell == null ){
-					continue;
-				}
-				
-				ExcelUtils.cleanCell(cell);
-			}
-		}
-	}
-	
-	/**
 	 * Checks the format data to ensure it is mostly valid. This is
 	 * only a rough check, but it prevents several runtime issues while checking
 	 * the excel sheet.
@@ -113,7 +108,7 @@ public class ExcelChecker {
 			}
 		}
 		//Check all dependencies at least exist as columns
-		Vector<String> columnTitles = formatData.getColumnTitles();
+		Set<String> columnTitles = formatData.getColumnTitles();
 		for ( String title : columnTitles ){
 			ColumnFormatData columnFormat = formatData.getColumnFormat(title);
 			Set<String> deps = columnFormat.getDependencies();
@@ -126,11 +121,29 @@ public class ExcelChecker {
 			}
 		}
 	}
+
+	/**
+	 * Cleans the excel sheet of any comments and coloring
+	 */
+	public void cleanOutput(){
+		for ( int rowIndex : sheetData.getLoanRowIndexes() ){
+			Row row = sheet.getRow(rowIndex);
+			
+			for ( String header : formatData.getColumnTitles() ){
+				int columnIndex = sheetData.getColumnIndex(header);
+				Cell cell = row.getCell(columnIndex);
+				if ( cell == null ){
+					continue;
+				}
+				
+				ExcelUtils.cleanCell(cell);
+			}
+		}
+	}
 	
 	// ####################################################
 	// ### Checking the input file
 	// ####################################################
-	
 	/**
 	 * The public method called to check and patch all of the rows in the
 	 * excel sheet.
@@ -147,229 +160,142 @@ public class ExcelChecker {
 	 * @param rowIndex of row to check
 	 */
 	private void patchRow(int rowIndex){
-		Logger.logVerbose("Working on row "+rowIndex);
-		Row row = sheet.getRow(rowIndex);
+		currentRow = sheet.getRow(rowIndex);
 		
-		//Try to meet all dependency requirements for this row, and store if it works
-		boolean goodDependencies = patchRowDependencies(row);
-		
-		//If the dependencies are met we can check and correct the remaining cells
-		if ( goodDependencies ){
-			Logger.logVerbose("Resolved dependencies on this row. Continuing");
-			//Patch non-dependency cells
-			patchRowIndependents(row);
-			patchRowDependents(row);
-		} else {
-			//If dependencies are unmet, it is hard to check and correct
-			// the other cells in the row so we quit
-			Logger.logVerbose("Failed to resolve dependencies on row "+rowIndex
-					+". Skipping this row");
-			return;
+		// Create a map to store the status of each column in the row
+		Set<String> columnNames = formatData.getColumnTitles();
+		Map<String, ResolvedStatus> columnStatuses = 
+				new HashMap<String, ResolvedStatus>();
+		for ( String columnName : columnNames ){
+			columnStatuses.put(columnName, ResolvedStatus.NOT_CHECKED);
 		}
+		LinkedList<String> parentStack = new LinkedList<String>();
 		
-		//Runs one final check on this row, and tags cells with comments and colors
-		checkAndTagAll(row);
+		//Check all the cells, since names to check is all column names
+		checkCellsWithNames(columnNames, columnStatuses, parentStack);
+		
+		//TMP stuff
+		Logger.log("");
+		Logger.log("Row "+rowIndex);
+		Logger.log(columnStatuses.toString());
 	}
 	
 	/**
-	 * For each cell in the row, if it is not filled correctly, tag it as an incorrect
-	 * cell.
+	 * Checks all of the cells in the column's with titles in namesToCheck.
+	 * Returns if all of the cells to check had successfully met their
+	 * dependencies.
 	 * 
-	 * @param row to check and tag cells in
+	 * @param namesToCheck set of names to check
+	 * @param allStatuses the map of names to resolved statuses for all columns
+	 * @param parentStack stack of names of parents traversed
+	 * @return a set of the names of unresolved columns
 	 */
-	private void checkAndTagAll(Row row){
-		Vector<String> allHeaders = formatData.getColumnTitles();
-		for ( String header : allHeaders ){
-			int cellIndex = sheetData.getColumnIndex(header);
-			Cell cell = row.getCell(cellIndex);
-			if ( cell == null ){
-				cell = row.createCell(cellIndex);
-			}
-			ColumnFormatData format = formatData.getColumnFormat(header);
-			checkAndTag(cell, format, 1);
-		}
-	}
-	
-	/**
-	 * Check if the given cell is valid under the given format data. If it is not,
-	 * add comments for the errors and color it based on the urgency.
-	 * 
-	 * @param cell to check and tag
-	 * @param format to use when checking the cell
-	 * @param urgency of the check, used in coloring the cell
-	 */
-	private void checkAndTag(Cell cell, ColumnFormatData format, int urgency) {
-		if ( !format.isRequired() ){
-			return;
-		}
-		Vector<String> errors = checkCellFormat(cell, format);
-		if ( errors.size() != 0 ){
-			int rowNum = cell.getRow().getRowNum();
-			String columnIndex = ExcelUtils.intToLetter(cell.getColumnIndex());
-			Logger.log(columnIndex+(rowNum+1)+": "+format.getTitle()+": "+errors);
-			addCellComment(cell, errors, UrgencyLevel.values()[urgency]);
-		}
-	}
-	
-	/**
-	 * For the given row, attempt to patch all the dependencies that arise from
-	 * the format data. Returns if all the dependency columns were correct or corrected.
-	 * 
-	 * @param row to resolve dependencies on
-	 * @return if the dependencies are resolved
-	 */
-	private boolean patchRowDependencies(Row row){
-		boolean completeSuccess = true;
-		//Get all core dependencies
-		Set<String> dependencies = formatData.getAllDependencies();
-		//For each of these columns
-		for ( String header : dependencies ){
-			//Collect some useful variables
-			int columnIndex = sheetData.getColumnIndex(header);
-			Cell dependencyCell = row.getCell(columnIndex);
-			if ( dependencyCell == null ){
-				dependencyCell = row.createCell(columnIndex);
-			}
-			currentCell = dependencyCell;
-			ColumnFormatData dependencyFormat = formatData.getColumnFormat(header);
+	private Set<String> checkCellsWithNames(Set<String> namesToCheck,
+			Map<String, ResolvedStatus> allStatuses, 
+			LinkedList<String> parentStack) {
+		//Create set to track unresolved columns
+		Set<String> unresolvedNames = new HashSet<String>();
+		
+		// Tracks if all names in namesToCheck have been checked
+		boolean checkedAll = false;
+		
+		while ( !checkedAll ){
+			//find next name to check
+			String nameToCheck = getNextName(namesToCheck, allStatuses);
 			
-			//Log what we are doing
-			Logger.logVerbose("Working on dependency "+header+" at column "
-					+ExcelUtils.intToLetter(columnIndex) );
-			
-			//Check it and get any error messages
-			Vector<String> errors = checkCellFormat(dependencyCell, dependencyFormat);
-			
-			//If there are errors
-			if ( errors.size() > 0 ){
-				//try to fill
-				boolean filled = fillCell(dependencyCell, dependencyFormat);
-				if ( filled ){
-					Vector<String> errors2 = checkCellFormat(dependencyCell, dependencyFormat);
-					if ( errors2.size() > 0 ){ 
-						Logger.logVerbose("Could not fix dependency. Autofill Errors: "+errors2);
-						completeSuccess = false;
-					} else {
-						//filled with no errors
-						Logger.logVerbose("Passed Check after autofill");
-					}
-				} else {
-					//Here we failed to fill
-					Logger.logVerbose("Could not fix dependency. Errors: "+errors);
-					completeSuccess = false;
+			//Check the name if one was found
+			if ( nameToCheck != null ){
+				//First check that the cell is not a parent of itself
+				// otherwise, it is circularly dependent
+				if ( parentStack.contains(nameToCheck) ){
+					//Mark cell as unresolvable and continue
+					allStatuses.remove(nameToCheck);
+					allStatuses.put(nameToCheck, ResolvedStatus.UNRESOLVED);
+					
+					unresolvedNames.add(nameToCheck);
+					continue;
 				}
-			} else {
-				Logger.logVerbose("Passed Check");
-			}
-		}
-		if ( !completeSuccess ){
-			Logger.log("Warning: Failed to resolve core dependencies on row "+row.getRowNum()
-					+". Try filling the cells in these columns and running this again: ");
-			for ( String header : dependencies ){
-				//Collect some useful variables
-				int columnIndex = sheetData.getColumnIndex(header);
-				Cell dependencyCell = row.getCell(columnIndex);
-				if ( dependencyCell == null ){
-					dependencyCell = row.createCell(columnIndex);
-				}
-				currentCell = dependencyCell;
-				ColumnFormatData dependencyFormat = formatData.getColumnFormat(header);
 				
-				checkAndTag(dependencyCell, dependencyFormat, 2);
-			}
-		}
-		return completeSuccess;
-	}
-	
-	/**
-	 * Checks all independent cells in the row, and corrects any that are correctable.
-	 * 
-	 * @param row to check and patch independent cells in
-	 */
-	private void patchRowIndependents(Row row){
-		//Get headers of non-dependency cells
-		Set<String> dependencyHeaders = formatData.getAllDependencies();
-		Vector<String> allHeaders = formatData.getColumnTitles();
-		allHeaders.removeAll(dependencyHeaders);
-		
-		for ( String header : allHeaders ){
-			//Collect some useful variables
-			int columnIndex = sheetData.getColumnIndex(header);
-			Cell cell = row.getCell(columnIndex);
-			if ( cell == null ){
-				cell = row.createCell(columnIndex);
-			}
-			currentCell = cell;
-			ColumnFormatData format = formatData.getColumnFormat(header);
-			
-			//Skip all rows that are not independent
-			if ( format.getDependencies().size() > 0 ){
-				continue;
-			}
-			
-			//Log what we are doing
-			Logger.logVerbose("Working on independent "+header+" at column "
-					+ExcelUtils.intToLetter(columnIndex) );
-			
-			//Do the actual checking
-			//Check it and get any error messages
-			Vector<String> errors = checkCellFormat(cell, format);
-			
-			//If there are errors
-			if ( errors.size() > 0 ){
-				//try to fill
-				boolean filled = fillCell(cell, format);
-				if ( filled ){
-					Vector<String> errors2 = checkCellFormat(cell, format);
-					if ( errors2.size() > 0 ){ 
-						Logger.logVerbose("Could not fix dependency. Autofill Errors: "+errors2);
-					} else {
-						//filled with no errors
-						Logger.logVerbose("Passed Check after autofill");
+				//Check children if they exists
+				Set<String> childrenNames = formatData.getColumnFormat(nameToCheck).getDependencies();
+				if ( !childrenNames.isEmpty() ){
+					parentStack.push(nameToCheck);
+					Set<String> unresolvedChildren = 
+							checkCellsWithNames(childrenNames, allStatuses, parentStack);
+					parentStack.pop();
+					//If the children did not resolve, the parent won't
+					//so we should abort
+					if ( unresolvedChildren.size() != 0 ){
+						//Modify cell status
+						allStatuses.remove(nameToCheck);
+						allStatuses.put(nameToCheck, ResolvedStatus.UNRESOLVED);
+						
+						//Comment on the cells
+						addCellComment(nameToCheck, 
+								"Could not check cell because it depends on poorly filled cells. This cell depended on cells "+Utils.nicePrint(unresolvedChildren),
+								UrgencyLevel.WARNING);
+						for ( String childName : unresolvedChildren ){
+							addCellComment(childName, "", UrgencyLevel.CRITICAL);
+							addCellComment(childName, "--- Critical Errors", UrgencyLevel.CRITICAL);
+							addCellComment(childName, "Cell "+nameToCheck+" needs this cell to be nicely filled before it can be checked", UrgencyLevel.CRITICAL);
+						}
+						
+						//Add to unresolved list and continue
+						unresolvedNames.add(nameToCheck);
+						continue;
 					}
-				} else {
-					//Here we failed to fill
-					Logger.logVerbose("Could not fix dependency. Errors: "+errors);
 				}
-			} else {
-				Logger.logVerbose("Passed Check");
+				
+				//Now check the cell itself
+				boolean resolved = patchCell(nameToCheck);
+				
+				//And update the results of the check
+				allStatuses.remove(nameToCheck);
+				if ( resolved ){
+					allStatuses.put(nameToCheck, ResolvedStatus.RESOLVED);
+				} else {
+					allStatuses.put(nameToCheck, ResolvedStatus.UNRESOLVED);
+					unresolvedNames.add(nameToCheck);
+				}
+				
+			} else { //nameToCheck == null
+				checkedAll = true;
 			}
 		}
+		
+		return unresolvedNames;
+		
 	}
 	
 	/**
-	 * Checks all dependent cells in the row, and corrects any that are correctable.
+	 * Returns a name in the list of namesToCheck if allStatuses has
+	 * that name's ResolvedStatus as NOT_CHECKED. null is returned
+	 * if no such name is found.
 	 * 
-	 * @param row to check and patch dependent cells in
+	 * @param namesToCheck
+	 * @param allStatuses
+	 * @return a name in namesToCheck that has a resolved status of
+	 * NOT_CHECKED. null if none is found
 	 */
-	private void patchRowDependents(Row row){
-		//Get headers of non-dependency cells
-		Set<String> dependencyHeaders = formatData.getAllDependencies();
-		Vector<String> allHeaders = formatData.getColumnTitles();
-		allHeaders.removeAll(dependencyHeaders);
-		
-		for ( String header : allHeaders ){
-			//Collect some useful variables
-			int columnIndex = sheetData.getColumnIndex(header);
-			Cell cell = row.getCell(columnIndex);
-			if ( cell == null ){
-				cell = row.createCell(columnIndex);
+	private String getNextName(Set<String> namesToCheck, 
+			Map<String, ResolvedStatus> allStatuses){
+		String nameToCheck = null;
+		for ( String name : namesToCheck ){
+			if ( allStatuses.get(name) == ResolvedStatus.NOT_CHECKED ){
+				nameToCheck = name;
+				break;
 			}
-			currentCell = cell;
-			ColumnFormatData format = formatData.getColumnFormat(header);
-			
-			//Skip all rows that are not dependent
-			if ( format.getDependencies().size() == 0 ){
-				continue;
-			}
-			
-			//Log what we are doing
-			Logger.logVerbose("Working on dependent "+header+" at column "
-					+ExcelUtils.intToLetter(columnIndex) );
-			
-			//Do the actual checking
-			patchCell(cell, format);
 		}
+		return nameToCheck;
+	}
+	
+	
+	private boolean patchCell(String cellName){
+		int columnIndex = sheetData.getColumnIndex(cellName);
+		Cell cell = ExcelUtils.getSafeCell(currentRow, columnIndex);
+		
+		ColumnFormatData data = formatData.getColumnFormat(cellName);
+		return patchCell(cell, data);
 	}
 	
 	/**
@@ -378,52 +304,52 @@ public class ExcelChecker {
 	 * @param cell to check
 	 * @param format data to check with
 	 */
-	private void patchCell(Cell cell, ColumnFormatData format){
-		// all dependency headers
-		Set<String> dependencyHeaders = format.getDependencies();
-		// for each dep
-		for ( String dependencyHeader : dependencyHeaders ){
-			// collect the dep cell and format
-			int depCellIndex = sheetData.getColumnIndex(dependencyHeader);
-			Cell depCell = cell.getRow().getCell(depCellIndex);
-			if ( depCell == null ){
-				depCell = cell.getRow().createCell(depCellIndex);
-			}
-			ColumnFormatData depFormat = formatData.getColumnFormat(dependencyHeader);
-			//check it
-			Vector<String> depErrors = checkCellFormat(depCell, depFormat);
-			if ( depErrors.size() != 0 ){
-				Logger.logVerbose("Working on dependent: "+dependencyHeader);
-				patchCell( depCell, depFormat );
-				depErrors = checkCellFormat(depCell, depFormat);
-				if ( depErrors.size() != 0 ){
-					//failed to resolve deps - should not happen
-				}
-			}
-		}
+	private boolean patchCell(Cell cell, ColumnFormatData format){
+		//Store the current cell
+		currentCell = cell;
 		
 		//Check it and get any error messages
 		Vector<String> errors = checkCellFormat(cell, format);
 		
-		//If there are errors
-		if ( errors.size() > 0 ){
+		//If there are no errors
+		if ( errors.size() == 0 ){
+			return true;
+		} else {
+			//Comment on a cell that had errors and was not fillable
+			addCellComment(cell, "--- Format Errors", UrgencyLevel.WARNING);
+			addCellComments(cell, errors, UrgencyLevel.WARNING);
+			return false;
+		}
+		/*
+		//If there are no errors
+		if ( errors.size() == 0 ){
+			return true;
+		
+			
+		} else { //There were initially errors
+			
 			//try to fill
 			boolean filled = fillCell(cell, format);
-			if ( filled ){
+			
+			if ( filled ){ //If it was fillable
+				
 				Vector<String> errors2 = checkCellFormat(cell, format);
-				if ( errors2.size() > 0 ){ 
-					Logger.logVerbose("Could not fix dependency. Autofill Errors: "+errors2);
-				} else {
-					//filled with no errors
-					Logger.logVerbose("Passed Check after autofill");
+				
+				//There were no errors after fill
+				if ( errors2.size() == 0 ){
+					return true;
+					
+				} else { //there were errors after fill
+					return false;
 				}
-			} else {
-				//Here we failed to fill
-				Logger.logVerbose("Could not fix dependency. Errors: "+errors);
+				
+			} else { //Cell could not be filled
+				//Comment on a cell that had errors and was not fillable
+				addCellComments(cell, errors, UrgencyLevel.WARNING);
+				return false;
 			}
-		} else {
-			Logger.logVerbose("Passed Check");
 		}
+		*/
 	}
 	
 	/**
@@ -435,22 +361,10 @@ public class ExcelChecker {
 	 * @return a list of the errors
 	 */
 	private Vector<String> checkCellFormat(Cell cell, ColumnFormatData format){
-		currentCell = cell;
 		Vector<String> errors = new Vector<String>();
 		
-		//Check for dependency errors
-		Vector<String> dependencyErrors = checkCellDependencies(cell, format);
-		if ( dependencyErrors.size() > 0 ){
-			return dependencyErrors;
-		}
-		/*
-		if ( !format.isRequired() ){
-			return errors;
-		}
-		*/
-		//With all dependencies ok we can actually check the cell
 		if ( !checkIsRequired(cell, format) ){
-			errors.add("This cell is required and should not be blank");
+			errors.add("This cell is required and should not be blank.");
 		}
 		
 		if ( !format.isRequired() && deleteIfNotRequired ){
@@ -463,19 +377,19 @@ public class ExcelChecker {
 		}
 		*/
 		if ( !checkValue(cell, format) ){
-			errors.add("Has the wrong value filled in");
+			errors.add("Has the wrong value filled in.");
 		}
 		
 		if ( !checkMaxCharacterCount(cell, format) ){
 			String error = "Exceeds max character count of ";
 			error += format.getMaxCharacterCount();
-			error += " with value "+ExcelUtils.getCellContentsAsString(cell);
+			error += " with value "+ExcelUtils.getCellContentsAsString(cell)+".";
 			errors.add(error);
 		}
 		if ( !checkDataType(cell, format) ){
 			String error = "Should have the data type of ";
-			error += format.getType().toString() + " but was a value of ";
-			error += ExcelUtils.getCellContentsAsString(cell) + ".";
+			error += format.getType().toString() + " but was a value of \"";
+			error += ExcelUtils.getCellContentsAsString(cell) + "\".";
 			errors.add(error);
 			if ( format.getType().toString().equals("Enumerable") ){
 				String error2 = "Should be one of the following strings: "+format.getType().getEnumValues();
@@ -483,36 +397,6 @@ public class ExcelChecker {
 			}
 		}
 		
-		return errors;
-	}
-	
-	/**
-	 * Checks that the column format data's dependency cells for the given cell
-	 * are met.
-	 * 
-	 * @param cell to check
-	 * @param format data to check against
-	 * @return a list of the unmet dependency cells
-	 */
-	private Vector<String> checkCellDependencies(Cell cell, ColumnFormatData format){
-		Vector<String> errors = new Vector<String>();
-		
-		//If this cell has unresolved dependencies we can't properly check it
-		Set<String> dependencyHeaders = format.getDependencies();
-		//for each dependency
-		for ( String dependencyHeader : dependencyHeaders ){
-			//get the cell and format
-			int dependencyCellIndex = sheetData.getColumnIndex(dependencyHeader);
-			Cell dependencyCell = cell.getRow().getCell(dependencyCellIndex);
-			ColumnFormatData dependencyFormat = formatData.getColumnFormat(dependencyHeader);
-			//and check them
-			Vector<String> dependencyErrors = checkCellFormat(dependencyCell, dependencyFormat);
-			// and if there are errors
-			if ( dependencyErrors.size() != 0 ){
-				//We have unmet dependencies
-				errors.add("Unmet dependency : "+dependencyHeader);
-			}
-		}
 		return errors;
 	}
 	
@@ -660,14 +544,38 @@ public class ExcelChecker {
 	// ####################################################
 	// ### private utility methods
 	// ####################################################
+	private void addCellComment(String cellName, String comment, 
+			UrgencyLevel urgency){
+		int cellIndex = sheetData.getColumnIndex(cellName);
+		Cell cell = ExcelUtils.getSafeCell(currentRow, cellIndex);
+		addCellComment(cell, comment, urgency);
+	}
+	
 	/**
-	 * Wrapper method to call ExcelUtils' comment method if the settings permit it.
+	 * Wrapper method to call ExcelUtils' comment method if the settings permit 
+	 * it.
+	 * 
+	 * @param cell to comment on
+	 * @param comments to put in the comment
+	 * @param urgency used in coloring the cell
+	 */
+	private void addCellComments(Cell cell, Vector<String> comments, 
+			UrgencyLevel urgency){
+		for ( String comment : comments ){
+			addCellComment(cell, comment, urgency);
+		}
+	}
+	
+	/**
+	 * Wrapper method to call ExcelUtils' comment method if the settings permit 
+	 * it.
 	 * 
 	 * @param cell to comment on
 	 * @param comment text to put in the comment
 	 * @param urgency used in coloring the cell
 	 */
-	private void addCellComment(Cell cell, String comment, UrgencyLevel urgency){
+	private void addCellComment(Cell cell, String comment, 
+			UrgencyLevel urgency){
 		if ( colorFaultyCells ){
 			ExcelUtils.setCellColor(cell, urgency);
 		}
@@ -677,7 +585,8 @@ public class ExcelChecker {
 	}
 	
 	/**
-	 * Wrapper method to call ExcelUtils' comment method if the settings permit it.
+	 * Wrapper method to call ExcelUtils' comment method if the settings permit 
+	 * it.
 	 * 
 	 * @param cell to comment on
 	 * @param comments to add to the cell

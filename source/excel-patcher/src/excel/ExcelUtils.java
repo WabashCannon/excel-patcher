@@ -50,6 +50,24 @@ public class ExcelUtils {
 	}
 	
 	/**
+	 * Utility method to get a cell if it exists, else create a new
+	 * one and return that.
+	 * 
+	 * @param row to get the cell from
+	 * @param cellIndex for the desired cell
+	 * @return the Cell object at the specified index
+	 */
+	public static Cell getSafeCell(Row row, int cellIndex){
+		Cell cell;
+		cell = row.getCell(cellIndex);
+		if ( cell == null ){
+			cell = row.createCell(cellIndex);
+		}
+		
+		return cell;
+	}
+	
+	/**
 	 * Returns if the given cell is empty or if its contents are null
 	 * 
 	 * @param cell to check
