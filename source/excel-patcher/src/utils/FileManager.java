@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -100,5 +102,14 @@ public class FileManager {
 		}
 		
 		return didOpen;
+	}
+	
+	
+	public static void openFormatManual(){
+		try {
+			DesktopApi.browse( new URI("https://github.com/WabashCannon/excel-patcher/blob/master/Format_Manual.md"));
+		} catch (URISyntaxException e) {
+			Logger.log("Error", e.getMessage());
+		}
 	}
 }

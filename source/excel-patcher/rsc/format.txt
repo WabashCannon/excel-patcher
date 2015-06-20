@@ -1,0 +1,30 @@
+InputInt1{
+	Required: yes
+	Type: Integer
+}
+
+InputInt2{
+	Required: yes
+	Type: Integer
+}
+
+InputDec1{
+	Required: yes
+	Type: Decimal(10,4)
+}
+
+InputDec2{
+	Required: yes
+	Type: Decimal(10,4)
+}
+
+InputStr1{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 10
+}
+
+InputEnum1{
+	Required: yes
+	Type: Enumerable "Enum1Val1" "Enum1Val2" "Enum1Val3"
+}

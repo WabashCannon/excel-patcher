@@ -102,14 +102,14 @@ public class GUI extends JFrame {
 			}
 		});
 		
-		//Create edit format file menu item
+		//Create open format file manual
 		JMenuItem openManualMenuItem = new JMenuItem("Open format file manual", icon);
 		openManualMenuItem.setMnemonic(KeyEvent.VK_E);
 		openManualMenuItem.setToolTipText("Opens the format file manual");
 		openManualMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				FileManager.editFormatFile();
+				FileManager.openFormatManual();
 			}
 		});
 		

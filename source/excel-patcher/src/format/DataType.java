@@ -148,6 +148,11 @@ public class DataType {
 	 * @return the proper cell contents if fix was successful, otherwise null
 	 */
 	public RichTextString fixDataType(Cell cell){
+		// If the cell is empty, don't fix it
+		if ( ExcelUtils.isCellEmpty(cell) ){
+			return null;
+		}
+		// Try to fix boolean cells
 		if ( dataTypeName.equals("Boolean") && cell.getCellType() == Cell.CELL_TYPE_BOOLEAN ){
 			boolean bool = cell.getBooleanCellValue();
 			return new XSSFRichTextString( String.valueOf(bool) );
@@ -166,6 +171,8 @@ public class DataType {
 				return new XSSFRichTextString("false");
 			}
 		}
+		
+		//Try to fix enumerable cells
 		if ( dataTypeName.equals("Enumerable") ){
 			String content = ExcelUtils.getCellContentsAsString(cell);
 			for ( String enumVal : enumVals ){
