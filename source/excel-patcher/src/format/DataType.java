@@ -6,12 +6,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import utils.Logger;
+import utils.Utils;
 import excel.ExcelUtils;
 
 /**
@@ -120,6 +123,8 @@ public class DataType {
 					return enumVals.contains(cell.getStringCellValue());
 				} else if ( isBooleanString(content) ){
 					return dataTypeName.equals("Boolean");
+				//} else if ( Utils.isNumber(content) ){
+				//	return dataTypeName.equals("Decimal") || dataTypeName.equals("Integer");
 				} else {
 					return dataTypeName.equals("String");
 				}
@@ -127,7 +132,6 @@ public class DataType {
 				if (DateUtil.isCellDateFormatted(cell)) {
 					return dataTypeName.equals("Date");
 				}
-				
 				double cellValue = cell.getNumericCellValue();
 				long cellValueL = (long)cell.getNumericCellValue();
 				
@@ -152,6 +156,58 @@ public class DataType {
 		if ( ExcelUtils.isCellEmpty(cell) ){
 			return null;
 		}
+		
+		// Try to fix double cells
+		if ( dataTypeName.equals("Decimal") && cell.getCellType() == Cell.CELL_TYPE_STRING ){
+			String str = cell.getStringCellValue();
+			try {
+				double dbl = Double.parseDouble(str);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(dbl);
+			} catch ( NumberFormatException e ){
+				//Do nothing
+			}
+		}
+		
+		if ( dataTypeName.equals("Decimal") && cell.getCellType() == Cell.CELL_TYPE_NUMERIC ){
+			double dbl = cell.getNumericCellValue();
+			String str = String.valueOf(dbl);
+			String[] arr = str.split("\\.");
+			if ( arr.length == 2 ){
+				int totalLength = str.length();
+				int decimalLength = arr[1].length();
+				int totalCut = totalLength - this.totalLength;
+				int decimalCut = decimalLength - this.decimalLength;
+				int toCut = Math.max(totalCut, decimalCut);
+				if ( toCut > 0 ){
+					if ( toCut <= decimalLength ) {
+						arr[1] = arr[1].substring(0, arr[1].length()-toCut);
+						cell.setCellValue(Double.parseDouble(arr[0]+"."+arr[1]));
+					} else if ( arr[0].length() <= this.totalLength ){
+						cell.setCellValue(Double.parseDouble(arr[0]));
+					}
+				}
+			}
+		}
+		
+		// Try to fix int cells
+		if ( dataTypeName.equals("Integer") && cell.getCellType() == Cell.CELL_TYPE_STRING ){
+			String str = cell.getStringCellValue();
+			try{
+				int i = Integer.parseInt(str);
+				cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+				cell.setCellValue(i);
+			} catch ( NumberFormatException e ){
+				try {
+					double dbl = Double.parseDouble(str);
+					cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+					cell.setCellValue( (int) dbl );
+				} catch ( NumberFormatException e2 ){
+					//Do nothing
+				}
+			}
+		}
+		
 		// Try to fix boolean cells
 		if ( dataTypeName.equals("Boolean") && cell.getCellType() == Cell.CELL_TYPE_BOOLEAN ){
 			boolean bool = cell.getBooleanCellValue();
@@ -194,7 +250,7 @@ public class DataType {
 	 */
 	private boolean isValidNumber(double number, boolean isInt){
 		if ( isInt && dataTypeName.equals("Integer") ){ return true; }
-		if ( isInt && dataTypeName.equals("Decimal")){ return String.valueOf(number).length() <= totalLength; }
+		if ( isInt && dataTypeName.equals("Decimal")){ return true; }//String.valueOf(number).length() <= totalLength; }
 		if ( !isInt && dataTypeName.equals("Decimal") ){
 			String asString = String.valueOf(number);
 			String[] split = asString.split("\\.");
@@ -222,6 +278,14 @@ public class DataType {
 	public String getEnumValues(){
 		assert( enumVals != null );
 		return enumVals.toString();
+	}
+	
+	/**
+	 * Returns the name of this objects data type name
+	 * @return the name of this objects data type name
+	 */
+	public String getTypeName(){
+		return dataTypeName;
 	}
 	
 	@Override

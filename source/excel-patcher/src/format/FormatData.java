@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import format.conditional.Specification;
 import utils.Logger;
+import utils.Utils;
 
 public class FormatData {
 	/** The finalized set of minimal dependencies for this sheet */
@@ -53,9 +54,6 @@ public class FormatData {
 				dependencyGraph.addChildToParent(columnName, dependency);
 			}
 		}
-		
-		Logger.setEnablePrefix("Graph", true);
-		Logger.log("Graph", dependencyGraph.toString());
 		
 	}
 	
@@ -113,34 +111,6 @@ public class FormatData {
 				columnFormats.remove(i);
 			}
 		}
-	}
-	
-	/**
-	 * Returns the minimal set of dependency column titles for the sheet.
-	 * 
-	 * @return the minimal set of dependency column titles for the sheet
-	 */
-	public Set<String> getAllDependencies(){
-		return dependencyGraph.getLeaves();
-		/*
-		if ( finalDependencies == null ){
-			Logger.log("Error", "Tried to get minimal dependencies before they"
-					+"were compiled");
-		}
-		return finalDependencies;
-		*/
-	}
-	
-	/**
-	 * Returns the set of independent columns in the sheet.
-	 * 
-	 * @return the set of independent columns in the sheet
-	 */
-	public Set<String> getAllNonDependencies(){
-		Set<String> allHeaders = new HashSet<String>();
-		allHeaders.addAll(getColumnTitles());
-		allHeaders.removeAll(getAllDependencies());
-		return allHeaders;
 	}
 	
 	// ####################################################

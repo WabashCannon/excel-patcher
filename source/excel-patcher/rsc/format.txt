@@ -39,7 +39,7 @@ OutputInt1{
 
 OutputDec1{
 	Required: yes
-	Type: Integer
+	Type: Decimal(10,4)
 	Value: InputDec1 when InputEnum1 is "Enum1Val1";
 		InputDec2 when InputEnum1 is "Enum1Val2";
 		"0.0" when InputEnum1 is "Enum1Val3"

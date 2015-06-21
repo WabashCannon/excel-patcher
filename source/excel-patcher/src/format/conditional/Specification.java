@@ -79,8 +79,9 @@ public class Specification {
 		if ( type.equals("Required") ){
 			String value = conditionalExpression.getValue();
 			if ( !KeywordChecker.isBoolean(value) ){
-				Logger.log("Error", "Required specification's conditional expression returned non-boolean value: "+value
-						+" for conditional expression "+conditionalExpression.toString());
+				Logger.log("Error", "\"Required\" specification's conditional expression returned non-boolean value: \""+value
+						+"\" for conditional expression "+conditionalExpression.toString()+". Assuming this column is not required.");
+				return "false";
 			}
 			return KeywordChecker.cleanBoolean(value);
 		} else if ( type.equals("MaxPossibleCharacters") ){
@@ -88,7 +89,11 @@ public class Specification {
 		} else if ( type.equals("Type") ){
 			return dataType.toString();
 		} else if ( type.equals("Value") ){
-			return conditionalExpression.getValue();
+			String value = conditionalExpression.getValue();
+			if ( value.equals("") ){
+				return null;
+			}
+			return value;
 		}
 		assert( false );
 		return null;

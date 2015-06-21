@@ -9,6 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import format.conditional.Specification;
 import utils.Logger;
+import utils.Utils;
 
 /**
  * This class is a container for the format requirements of a single column
@@ -146,10 +147,11 @@ public class ColumnFormatData {
 	 */
 	public RichTextString getValue(){
 		Specification valueSpec = getSpecification("Value");
-		if ( valueSpec == null ){
+		if ( valueSpec == null || valueSpec.getValue() == null ){
 			return null;
 		} else {
-			return new XSSFRichTextString( valueSpec.getValue() );
+			String value = valueSpec.getValue();
+			return new XSSFRichTextString( value );
 		}
 	}
 	

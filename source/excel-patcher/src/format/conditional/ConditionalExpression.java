@@ -56,7 +56,7 @@ public class ConditionalExpression {
 			Logger.logVerbose("        "+expression.toString());
 		}
 		
-		return "false";
+		return "";
 	}
 	
 	/**

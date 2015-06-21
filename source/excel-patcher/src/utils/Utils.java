@@ -43,4 +43,19 @@ public class Utils {
 		
 		return output;
 	}
+	
+	/**
+	 * Determines if the provided text is numeric.
+	 * 
+	 * @param text to check
+	 * @return if the text is numeric
+	 */
+	public static boolean isNumber(String text){
+		try {
+			Double.parseDouble(text);
+		} catch (NumberFormatException e){
+			return false;
+		}
+		return true;
+	}
 }

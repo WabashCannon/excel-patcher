@@ -2,6 +2,7 @@ package format.conditional;
 
 import format.KeywordChecker;
 import utils.Logger;
+import utils.Utils;
 
 /**
  * This class is a static utility class for carrying out comparisons. It mostly
@@ -36,8 +37,8 @@ public class Comparator {
 				&& ( KeywordChecker.isEqual(comparator) || KeywordChecker.isNot(comparator) ) ){
 			return compareWithEmpty(term1, term2, comparator);
 		}
-		boolean oneIsNumber = isNumber(term1);
-		boolean twoIsNumber = isNumber(term2);
+		boolean oneIsNumber = Utils.isNumber(term1);
+		boolean twoIsNumber = Utils.isNumber(term2);
 		if ( oneIsNumber != twoIsNumber ){
 			Logger.log("Error", "Comparator cannot compare numerical and non-numerical types: "+expressionString);
 		}
@@ -93,21 +94,6 @@ public class Comparator {
 			Logger.log("Error", "Comparator "+comparator+" is invalid for numeric types.");
 		}
 		return false;
-	}
-	
-	/**
-	 * Determines if the provided text is numeric.
-	 * 
-	 * @param text to check
-	 * @return if the text is numeric
-	 */
-	private static boolean isNumber(String text){
-		try {
-			Double.parseDouble(text);
-		} catch (NumberFormatException e){
-			return false;
-		}
-		return true;
 	}
 	
 	/**

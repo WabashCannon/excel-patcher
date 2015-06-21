@@ -196,6 +196,15 @@ public class ExcelChecker {
 		//Create set to track unresolved columns
 		Set<String> unresolvedNames = new HashSet<String>();
 		
+		//Add any already unresolved names to the list
+		for ( String name : namesToCheck ){
+			if ( allStatuses.get(name) == ResolvedStatus.UNRESOLVED ){
+				unresolvedNames.add(name);
+			}
+		}
+		
+		//Now check all names with status NOT_CHECKED
+		
 		// Tracks if all names in namesToCheck have been checked
 		boolean checkedAll = false;
 		
@@ -504,6 +513,13 @@ public class ExcelChecker {
 		} else {
 			String value = ExcelUtils.getCellContentsAsString(cell);
 			String desired = desiredValue.toString();
+			
+			if ( Utils.isNumber(value) && Utils.isNumber(desired) ){
+				Double a = Double.parseDouble(value);
+				Double b = Double.parseDouble(value);
+				return (a-b)<0.000001;
+			}
+			
 			return value.equals(desired);
 		}
 	}
@@ -528,6 +544,7 @@ public class ExcelChecker {
 			//Clear the cell and set the new value
 			cell.setCellType(Cell.CELL_TYPE_BLANK);
 			cell.setCellValue( autofillValue );
+			format.getType().fixDataType(cell);
 			
 			return true;
 		} else {
