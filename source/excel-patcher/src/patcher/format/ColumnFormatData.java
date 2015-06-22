@@ -1,4 +1,4 @@
-package format;
+package patcher.format;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -7,7 +7,7 @@ import java.util.Vector;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
-import format.conditional.Specification;
+import patcher.format.conditional.Specification;
 import utils.Logger;
 import utils.Utils;
 

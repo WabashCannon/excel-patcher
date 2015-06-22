@@ -1,13 +1,13 @@
-package format.conditional;
+package patcher.format.conditional;
 
 import java.util.Vector;
 
 import org.apache.poi.ss.usermodel.Cell;
 
+import patcher.ExcelChecker;
+import patcher.ExcelUtils;
+import patcher.format.KeywordChecker;
 import utils.Logger;
-import excel.ExcelChecker;
-import excel.ExcelUtils;
-import format.KeywordChecker;
 
 /**
  * This class is used for evaluating a String that contains a logical statement.

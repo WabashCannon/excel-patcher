@@ -1,4 +1,4 @@
-package format;
+package patcher.format;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
 
-import format.conditional.Specification;
+import patcher.format.conditional.Specification;
 import utils.Logger;
 import utils.Utils;
 

@@ -40,6 +40,9 @@ public class Logger {
 	 */
 	public static void log(String loggerName, String message){
 		LoggerSetting setting = getSetting(loggerName);
+		if ( setting.verbosity == LogLevel.NONE ){
+			return;
+		}
 		log(setting, message);
 	}
 	
@@ -190,7 +193,6 @@ public class Logger {
 	 * @param loggerSetting to use when logging
 	 * @param message to log
 	 */
-	@Deprecated
 	private static void log(LoggerSetting loggerSetting, String message){
 		//Split the message into lines
 		String[] lines = message.split("\\r?\\n");

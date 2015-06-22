@@ -1,12 +1,12 @@
-package format.conditional;
+package patcher.format.conditional;
 
 import java.util.Vector;
 
 import org.apache.poi.ss.usermodel.Cell;
 
-import excel.ExcelChecker;
-import excel.ExcelUtils;
-import format.KeywordChecker;
+import patcher.ExcelChecker;
+import patcher.ExcelUtils;
+import patcher.format.KeywordChecker;
 
 /**
  * This class contains a single conditional expression and is used for evaluating

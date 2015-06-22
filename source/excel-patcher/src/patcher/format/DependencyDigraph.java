@@ -1,4 +1,4 @@
-package format;
+package patcher.format;
 
 import java.util.ArrayList;
 import java.util.Collections;

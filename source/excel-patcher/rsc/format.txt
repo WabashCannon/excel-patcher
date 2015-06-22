@@ -52,3 +52,7 @@ AutoFill1{
 		"Val2" when InputEnum1 is "Enum1Val2";
 		"Val3" when InputEnum1 is "Enum1Val3"
 }
+
+NotRequired{
+	Required: no
+}

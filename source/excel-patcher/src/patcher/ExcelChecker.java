@@ -1,4 +1,4 @@
-package excel;
+package patcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,12 +16,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import patcher.ExcelUtils.UrgencyLevel;
+import patcher.format.ColumnFormatData;
+import patcher.format.DataType;
+import patcher.format.FormatData;
 import utils.Logger;
 import utils.Utils;
-import excel.ExcelUtils.UrgencyLevel;
-import format.ColumnFormatData;
-import format.DataType;
-import format.FormatData;
 
 /**
  * The meat and potatoes of the excel-patcher program. This class
@@ -47,8 +47,6 @@ public class ExcelChecker {
 	//Settings
 	/** Setting determining if non-required cells should be deleted */
 	public boolean deleteIfNotRequired = true;
-	/** Setting determining if the program should auto-correct format issues */
-	public boolean tryToFixFormatIssues = true;
 	/** Setting determining if cells should be colored on the output workbook */
 	public boolean colorFaultyCells = true;
 	/** Setting determining if comments should be added to the output workbook */
@@ -173,11 +171,6 @@ public class ExcelChecker {
 		
 		//Check all the cells, since names to check is all column names
 		checkCellsWithNames(columnNames, columnStatuses, parentStack);
-		
-		//TMP stuff
-		Logger.log("");
-		Logger.log("Row "+rowIndex);
-		Logger.log(columnStatuses.toString());
 	}
 	
 	/**

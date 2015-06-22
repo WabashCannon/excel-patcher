@@ -1,6 +1,6 @@
-package format.conditional;
+package patcher.format.conditional;
 
-import format.KeywordChecker;
+import patcher.format.KeywordChecker;
 import utils.Logger;
 import utils.Utils;
 

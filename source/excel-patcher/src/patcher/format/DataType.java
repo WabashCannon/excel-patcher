@@ -1,4 +1,4 @@
-package format;
+package patcher.format;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +13,9 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
+import patcher.ExcelUtils;
 import utils.Logger;
 import utils.Utils;
-import excel.ExcelUtils;
 
 /**
  * This class is used for storing a data type and checking a cell's contents

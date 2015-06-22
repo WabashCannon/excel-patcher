@@ -8,11 +8,11 @@ import java.util.Scanner;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
+import patcher.ExcelChecker;
+import patcher.format.FormatData;
 import utils.DesktopApi;
 import utils.FileManager;
 import utils.Logger;
-import excel.ExcelChecker;
-import format.FormatData;
 
 /**
  * Wrapper to interface between GUI side and ExcelChecker side.
@@ -34,7 +34,7 @@ public class Wrapper {
 	/** Output file path */
 	String outputFilePath = null;
 	/** Index set for boolean settings */
-	public enum SettingName{Color, Comment, Delete, FixDataType};
+	public enum SettingName{Color, Comment, Delete};
 	/** The current state of the settings */
 	private boolean[] settings = new boolean[SettingName.values().length];
 	
@@ -50,7 +50,6 @@ public class Wrapper {
 		setSetting(SettingName.Color, true);
 		setSetting(SettingName.Comment, true);
 		setSetting(SettingName.Delete, true);
-		setSetting(SettingName.FixDataType, true);
 		
 	}
 	
@@ -85,7 +84,6 @@ public class Wrapper {
 				checker.deleteIfNotRequired = settings[SettingName.Delete.ordinal()];
 				checker.colorFaultyCells = settings[SettingName.Color.ordinal()];
 				checker.commentOnFaultyCells = settings[SettingName.Comment.ordinal()];
-				checker.tryToFixFormatIssues = settings[SettingName.FixDataType.ordinal()];
 				checker.patchAllLoans();
 				
 				//Save the output

@@ -1,4 +1,4 @@
-package format;
+package patcher.format;
 
 import java.util.Arrays;
 import java.util.List;

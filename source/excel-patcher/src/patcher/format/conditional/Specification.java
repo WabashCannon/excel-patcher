@@ -1,12 +1,12 @@
-package format.conditional;
+package patcher.format.conditional;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import format.DataType;
-import format.KeywordChecker;
+import patcher.format.DataType;
+import patcher.format.KeywordChecker;
 import utils.Logger;
 
 /**
