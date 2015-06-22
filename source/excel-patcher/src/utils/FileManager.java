@@ -13,6 +13,9 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import settings.Settings;
+import settings.Settings.StringSetting;
+
 /**
  * This class is a small static utility class for loading and saving 
  * excel files and format files.
@@ -30,18 +33,21 @@ public class FileManager {
 	 * @return the Workbook loaded if successful, null otherwise
 	 */
 	public static Workbook loadExcelFile(String filePath){
+		if ( filePath == null ){
+			return null;
+		}
 		try {
 			Workbook wb = WorkbookFactory.create(new FileInputStream(filePath));
 			return wb;
 		} catch (InvalidFormatException e) {
-			Logger.log("Error", "Excel file was of an invalid format, quitting");
-			Logger.logVerbose(e.getMessage());
+			Logger.log("Error", "Excel file at "+filePath+" was of an invalid format, quitting");
+			Logger.logVerbose("Error", e.getMessage());
 		} catch (FileNotFoundException e) {
 			Logger.log("Error", "Could not find excel file at location \""+filePath+"\", quitting");
-			Logger.logVerbose(e.getMessage());
+			Logger.logVerbose("Error", e.getMessage());
 		} catch (IOException e) {
-			Logger.log("Error", "IO Exception while loading excel file");
-			Logger.logVerbose(e.getMessage());
+			Logger.log("Error", "IO Exception while loading excel file from location "+filePath);
+			Logger.logVerbose("Error", e.getMessage());
 		}
 		return null;
 	}
@@ -55,6 +61,9 @@ public class FileManager {
 	 * @return if the save was successful
 	 */
 	public static boolean saveExcelFile(String filePath, Workbook workbook){
+		if ( filePath == null || workbook == null ){
+			return false;
+		}
 		Logger.log("Saving file at "+filePath);
 	    FileOutputStream fileOut;
 		try {
@@ -80,7 +89,8 @@ public class FileManager {
 	 * @return if the file opened successfully
 	 */
 	public static boolean editFormatFile(){
-		File file = new File(Wrapper.FORMAT_FILE_PATH);
+		String formatFilePath = Settings.getSetting(StringSetting.FORMAT_FILE_PATH);
+		File file = new File(formatFilePath);
 		
 		//Make sure the file exists
 		if ( !file.exists() ){
@@ -88,7 +98,7 @@ public class FileManager {
 				file.createNewFile();
 			} catch (IOException e) {
 				Logger.log("Error", "Format file was not found at "
-						+Wrapper.FORMAT_FILE_PATH+" and a new one could not be created");
+						+formatFilePath+" and a new one could not be created");
 				Logger.logVerbose("Error", e.getMessage());
 				return false;
 			}

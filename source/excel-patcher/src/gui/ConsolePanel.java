@@ -37,8 +37,8 @@ public class ConsolePanel extends JPanel {
 		//scrollPanel.add(console);
 		
 		printStream=new PrintStream(new TextAreaOutputStream(console));
-		System.setOut(printStream);
-		System.setErr(printStream);
+		//System.setOut(printStream);
+		//System.setErr(printStream);
 	}
 	
 	/**

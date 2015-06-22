@@ -20,6 +20,8 @@ import patcher.ExcelUtils.UrgencyLevel;
 import patcher.format.ColumnFormatData;
 import patcher.format.DataType;
 import patcher.format.FormatData;
+import settings.Settings;
+import settings.Settings.BooleanSetting;
 import utils.Logger;
 import utils.Utils;
 
@@ -43,14 +45,6 @@ public class ExcelChecker {
 	/** Enum for indexing the status of dependency resolution for
 	 * a column */
 	public enum ResolvedStatus{ RESOLVED, UNRESOLVED, NOT_CHECKED };
-	
-	//Settings
-	/** Setting determining if non-required cells should be deleted */
-	public boolean deleteIfNotRequired = true;
-	/** Setting determining if cells should be colored on the output workbook */
-	public boolean colorFaultyCells = true;
-	/** Setting determining if comments should be added to the output workbook */
-	public boolean commentOnFaultyCells = true;
 	
 	//Instance variables
 	/** The sheet of the workbook being checked */
@@ -375,6 +369,7 @@ public class ExcelChecker {
 			errors.add("This cell is required and should not be blank.");
 		}
 		
+		boolean deleteIfNotRequired = Settings.getSetting(BooleanSetting.DELETE);
 		if ( !format.isRequired() && deleteIfNotRequired ){
 			return errors;
 		}
@@ -420,6 +415,8 @@ public class ExcelChecker {
 	 */
 	private boolean checkIsRequired(Cell cell, ColumnFormatData format){
 		boolean isRequired = format.isRequired();
+		boolean deleteIfNotRequired = Settings.getSetting(BooleanSetting.DELETE);
+		
 		if ( isRequired ){
 			return !ExcelUtils.isCellEmpty(cell);
 		} else {
@@ -602,6 +599,8 @@ public class ExcelChecker {
 	 */
 	private void addCellComment(Cell cell, String comment, 
 			UrgencyLevel urgency){
+		boolean colorFaultyCells = Settings.getSetting(BooleanSetting.COLOR);
+		boolean commentOnFaultyCells = Settings.getSetting(BooleanSetting.COMMENT);
 		if ( colorFaultyCells ){
 			ExcelUtils.setCellColor(cell, urgency);
 		}

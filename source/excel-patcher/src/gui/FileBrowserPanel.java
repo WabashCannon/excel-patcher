@@ -16,6 +16,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import settings.Settings;
+import settings.Settings.StringSetting;
 import utils.Logger;
 
 /**
@@ -34,10 +36,7 @@ public class FileBrowserPanel extends JPanel {
 	 * @param inputFile
 	 * @param outputFile
 	 */
-	public FileBrowserPanel(String inputFile, String outputFile){
-		this.inputFile = inputFile;
-		this.outputFile = outputFile;
-		
+	public FileBrowserPanel(){
 		//Tmp stuff
 		this.setBackground( new Color(255, 0, 0) );
 		
@@ -47,18 +46,6 @@ public class FileBrowserPanel extends JPanel {
 		//Fill it with content
 		createBrowserLines();
 	}
-	
-	/**
-	 * Creates a new file browser panel with empty fields.
-	 */
-	public FileBrowserPanel(){
-		this(null, null);
-	}
-	
-	/** The inputFilePath */
-	private String inputFile = null;
-	/** The outputFilePath */
-	private String outputFile = null;
 	
 	/** The size of the border in pixels */
 	private int borderSize = 5;
@@ -78,8 +65,9 @@ public class FileBrowserPanel extends JPanel {
 		inputLabel.setBorder( border2 );
 		
 		final JTextField inputPathField = new JTextField();
-		if ( inputFile != null ){
-			inputPathField.setText(inputFile);
+		String inputFilePath = Settings.getSetting(StringSetting.INPUT_FILE_PATH);
+		if ( inputFilePath != null ){
+			inputPathField.setText(inputFilePath);
 		}
 		
 		JButton inputButton = new JButton("Browse");
@@ -185,8 +173,9 @@ public class FileBrowserPanel extends JPanel {
 		outputLabel.setBorder(border);
 		
 		final JTextField outputPathField = new JTextField();
-		if ( outputFile != null ){
-			outputPathField.setText(outputFile);
+		String outputFileDirectory = Settings.getSetting(StringSetting.OUTPUT_FILE_DIRECTORY);
+		if ( outputFileDirectory != null ){
+			outputPathField.setText(outputFileDirectory);
 		}
 		JButton outputButton = new JButton("Browse");
 		outputButton.addActionListener( new ActionListener(){

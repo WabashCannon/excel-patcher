@@ -1,7 +1,5 @@
 package gui;
 
-import gui.Wrapper.SettingName;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -12,6 +10,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import settings.Settings;
+import settings.Settings.BooleanSetting;
 import utils.FileManager;
 
 public class MenuBar extends JMenuBar {
@@ -94,16 +94,17 @@ public class MenuBar extends JMenuBar {
 		JMenu settingsMenu = new JMenu("Settings");
 		fileMenu.setMnemonic(KeyEvent.VK_S);
 		
-		SettingName[] names = Wrapper.SettingName.values();
-		for ( final SettingName name : names ){
-			String nameStr = name.toString();
-			final boolean value = Wrapper.getWrapper().getSetting(name);
+		for ( final BooleanSetting setting : BooleanSetting.values() ){
+			String nameStr = setting.getName();
+			String tooltip = setting.getDescription();
+			final boolean value = Settings.getSetting(setting);
 			final JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(nameStr, value);
+			menuItem.setToolTipText(tooltip);
 			
 			menuItem.addActionListener(new ActionListener() {
 			    @Override
 			    public void actionPerformed(ActionEvent event) {
-			        Wrapper.getWrapper().setSetting(name, menuItem.isSelected());
+			        Settings.setSetting(setting, menuItem.isSelected());
 			    }
 			});
 			

@@ -1,7 +1,5 @@
 package gui;
 
-import gui.Wrapper.SettingName;
-
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -40,7 +38,7 @@ public class GUI extends JFrame {
 		header.setLayout(new BorderLayout());
 		
 		Wrapper wrap = Wrapper.getWrapper();
-		FileBrowserPanel fbPanel = new FileBrowserPanel(wrap.getInputFile(), wrap.getOutputFile());
+		FileBrowserPanel fbPanel = new FileBrowserPanel();
 		header.add(fbPanel, BorderLayout.NORTH);
 		
 		ActionButtonsPanel abPanel = new ActionButtonsPanel();
@@ -87,7 +85,7 @@ public class GUI extends JFrame {
 		
 		//Set the logger settings
 		Logger.setVerbosity(defaultLogger, LogLevel.NORMAL);
-		Logger.setVerbosity("Error", LogLevel.NONE);
+		Logger.setVerbosity("Error", LogLevel.NORMAL);
 		
 		//Set the global gui instance
 		gui = this;
