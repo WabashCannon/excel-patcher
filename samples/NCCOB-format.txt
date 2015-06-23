@@ -1,0 +1,615 @@
+LoanNumber{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 100
+}
+
+AdverseActionDate{
+	Required: Yes when LoanStatus = "AdverseAction"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+AdverseActionReason{
+	Required: No
+	Type: String
+	MaxPossibleCharacters: 50
+}
+
+AffiliatedBusinessDisclosureDate{
+	Required: No
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+AppraisedAmount{
+	Required: No
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+AppReceivedByFundingEntityDate{
+	Required: Yes when LoanStatus = "Closed"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+AppReceivedByOriginatingEntityDate{
+	Required: Yes
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+ARMCeiling{
+	Required: no when MortgageType = "Reverse"; 
+		yes when MortgageProgram = "AdjustableRate"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+ARMFloor{
+	Required: no when MortgageType = "Reverse";
+		yes when MortgageProgram = "AdjustableRate"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+ARMIndexRate{
+	Required: no when MortgageType = "Reverse";
+		yes when MortgageProgram = "AdjustableRate"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+ARMIndexDescription{
+	Required: no when MortgageType = "Reverse";
+		yes when MortgageProgram = "AdjustableRate"
+	Type: String
+	MaxPossibleCharacters: 100
+}
+
+ARMInitialAdjustmentCap{
+	Required: no when MortgageType = "Reverse";
+		yes when MortgageProgram = "AdjustableRate"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+ARMMargin{
+	Required: no when MortgageType = "Reverse";
+		yes when MortgageProgram = "AdjustableRate"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+BorrowerIncome{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+BorrowerNameFirst{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 100
+}
+
+BorrowerNameLast{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 100
+}
+
+BranchManagerNMLSID{
+	Required: yes when LoanSource = "Retail"
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+BranchNMLSEntityID{
+	Required: yes
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+CHARMProvidedDate{
+#TODO footnote 1
+	Required: no when MortgageType = "Reverse";
+		yes when MortgageProgram = "AdjustableRate";
+		no
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+CloseDate{
+	Required: yes when LoanStatus = "Closed"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+CombinedLTV{
+	Required: No
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+CompanyNMLSEntityID{
+	Required: yes
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+CreditScore{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+DebtToIncomeRatio{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+DisbursementDate{
+	Required: yes when LoanStatus = "Closed"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+GFEDisclosureProvidedDate{
+#TODO: Footnote 1
+	Required: no when MortgageType = "HELOC" or LoanPurpose = "ConstructionToPerm" or LoanPurpose = "ConstructionOnly";
+		yes
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+HELOCBrochureProvidedDate{
+	Required: yes when MortgageType = "HELOC"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+HOEPADisclosureWaiver{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Enumerable "Yes" "No" "N/A"
+	MaxPossibleCharacters: 5
+}
+
+HUDSpecialInfoBookletProvidedDate{
+#TODO footnote 1
+	Required: no when MortgageType = "Reverse";
+		yes when LoanPurpose = "Purchase" and PropertyType isnot "Chattel"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+InterestOnlyPeriod{
+	Required: No
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+InterestRateLockDate{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanStatus = "Closed"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+Is1To4Units{
+	Required: yes
+	Value: true
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsAdvancePaymentsRequired{
+	Required: no
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsBalloonMortgage{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsCallProvision{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsEscrowedFunds{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Value: false if IsEscrowedFunds = ""
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsFourYearPaymentChange{
+	Required: no when MortgageType = "Reverse";
+		yes if MortgageProgram = "Adjustable";
+		no
+#	Value: true when IsFourYearPaymentChange not "" and IsFourYearPaymentChange < 60
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsHighCostLoanCounselingReceived{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsHomeContractorPaymentsFromLoan{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsInterestRateIncreaseAfterDefault{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsLot25AcresOrMore{
+	Required: yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsNegativeAmortization{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsPMICancelledAtMidPoint{
+	Required: yes
+	Value: false
+#	Required: no when MortgageType = "Reverse";
+#		yes
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+IsRefinancedBySameLender{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanPurpose = "Refinance"
+	Type: Boolean
+	MaxPossibleCharacters: 5
+}
+
+LatePaymentPenaltyPercent{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanStatus = "Closed"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+LenderNMLSEntityID{
+	Required: yes when LoanStatus = "Closed"
+	Type: Integer
+	MaxPossibleCharacters: 200
+}
+
+LienPriority{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanStatus = "Closed"
+	Type: Enumerable "First" "Second" "Other"
+	MaxPossibleCharacters: 10
+}
+
+LoanAmount{
+	Required: yes
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+LoanDocumentTypeDescription{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Enumerable "AlternateDoc" "FullDoc" "LimitedDoc" "NoAssetVerification" "NoIncomeVerification" "NINA" "StreamlinedRefinanceDoc"
+	MaxPossibleCharacters:  50
+}
+
+LoanInterestRate{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanStatus = "Closed"
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+LoanPurpose{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Enumerable "Purchase" "Refinance" "ConstructionToPerm" "ConstructionOnly" "Bridge" "HomeImprovement" "Other"
+	MaxPossibleCharacters: 50
+}
+
+LoanSource{
+	Required: yes
+	Value: "Brokerage"
+	Type: Enumerable "Retail" "Brokerage" "TableFunded"
+	MaxPossibleCharacters: 50
+}
+
+LoanStatus{
+	Required: yes
+	Type: Enumerable "Closed" "Withdrawn" "AdverseAction"
+	MaxPossibleCharacters: 50
+	Value: "Closed" when LoanStatus = "Loan originated";
+		"Withdrawn" when LoanStatus = "Application withdrawn";
+		LoanStatus
+}
+
+LoanTerm{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+LoanToValueRatio{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+MIPFeeAmount{
+	Required: yes when MortgageType = "FHA" and LoanStatus = "Closed"
+	Type: Decimal(10, 2)
+	MaxPossibleCharacters: 11
+}
+
+MIPFeeAmountInEscrow{
+	Required: yes when MortgageType = "FHA" and LoanStatus = "Closed"
+	Type: Decimal(10, 2)
+	MaxPossibleCharacters: 11
+}
+
+MLONMLSEntityID{
+	Required: yes
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+
+MortgageLoanOriginator{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 200
+}
+
+MortgageProgram{
+	Required: yes
+	Type: Enumerable "Fixed" "Adjustable" "Other"
+	MaxPossibleCharacters: 50
+}
+
+MortgageType{
+	Required: yes
+	Type: Enumerable "Conventional" "VA" "FHA" "USDA" "HELOC" "Other" "Reverse"
+	MaxPossibleCharacters: 50
+	Value: "Other"
+}
+
+Occupancy{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Enumerable "PrimaryHome" "SecondaryHome" "InvestmentProperty"
+	MaxPossibleCharacters: 50
+}
+
+PaymentAmount{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanStatus = "Closed"
+	Type: Decimal(10, 2)
+	MaxPossibleCharacters: 11
+}
+
+PaymentFrequency{
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Enumerable "Monthly" "Bi-Weekly"
+	MaxPossibleCharacters: 50
+}
+
+PMILoanToValueLimit{
+	Required: No
+	Type: Decimal(9, 6)
+	MaxPossibleCharacters: 10
+}
+
+PMIPaidUpfront{
+	Required: No
+	Type: Decimal(10, 2)
+	MaxPossibleCharacters: 11
+}
+
+PMIPaidUpfrontAsCash{
+	Required: No
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+PMIUpfrontPremiumAmountInEscrow{
+	Required: No
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+PrepaymentPenaltyMonths{
+	Required: No
+	Type: Integer
+	MaxPossibleCharacters: 10
+}
+PrepaymentPenaltyPercent{
+	Required: No
+	Type: Decimal(9,6)
+	MaxPossibleCharacters: 10
+}
+
+PropertyCity{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 50
+}
+
+PropertyCounty{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 50
+}
+
+PropertyState{
+	Required: yes
+	Type: Enumerable "NC"
+	MaxPossibleCharacters: 2
+	Value: "NC"
+}
+
+PropertyStreet1{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 200
+}
+
+PropertyStreet2{
+	Required: no
+	Type: String
+	MaxPossibleCharacters: 200
+}
+
+PropertyType{
+	Required: yes
+	Type: Enumerable "Single" "Family" "Condominium" "ManufacturedHome" "Other" "Chattel"
+	MaxPossibleCharacters: 50
+}
+
+PropertyZipCode{
+	Required: yes
+	Type: String
+	MaxPossibleCharacters: 10
+}
+
+
+PurchasePrice{
+	Required: no when LoanPurpose = "Refinance";
+		no when MortgageType = "Reverse";
+		yes
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+RefinanceReason{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanPurpose = "Refinance";
+		no
+	Type: Enumerable "RateTerm" "CashOut" "DebtConsolidation" "Other"
+	MaxPossibleCharacters: 50
+	Value: "CashOut" when RefinanceReason = "Refi-No Cashout";
+		RefinanceReason
+}
+
+ReverseMortgageCounselor{
+	Required: yes when MortgageType = "Reverse" and LoanStatus = "Closed"
+	Type: String
+	MaxPossibleCharacters: 200
+}
+
+ReverseMortgageDisclosureDate{
+	Required: yes when MortgageType = "Reverse"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+TILAPR{
+#TODO footnote 1
+	Required: no when MortgageType = "Reverse" or MortgageType = "HELOC";
+		yes
+	Type: Decimal(9,6)
+	MaxPossibleCharacters:10
+}
+
+TILDisclosureProvidedDate{
+#TODO footnote 1
+	Required: no when MortgageType = "Reverse" or MortgageType = "HELOC";
+		yes
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+TILFinanceCharge{
+#TODO footnote 1
+	Required: no when MortgageType = "Reverse" or MortgageType = "HELOC";
+		yes
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+UndiscountedInterestRate{
+#TODO footnote 1 
+#TODO Required: yes when discount points are charged
+	Required: no when MortgageType = "Reverse";
+		yes
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+USDAFeeAmount{
+	Required: yes when MortgageType = "USDA" and LoanStatus = "Closed"
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+USDAFeeAmountInEscrow{
+	Required: yes when MortgageType = "USDA" and LoanStatus = "Closed"
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+VALoanFundingFee{
+	Required: yes when MortgageType = "VA" and LoanStatus = "Closed"
+	Type: Decimal(10,2)
+	MaxPossibleCharacters: 11
+}
+
+WithdrawnDate{
+	Required: no when MortgageType = "Reverse";
+		yes when LoanStatus = "Withdrawn"
+	Type: Date
+	MaxPossibleCharacters: 10
+}
+
+#Note - is YieldSpreadPremiumAmount on the paper
+YieldSpreadPremium{
+	Required: No
+	Type: Decimal(10, 2)
+	MaxPossibleCharacters: 11
+}
+
+SellerPaidLumpSum{
+#TODO: Required: yes when the seller paid items are not itemized in the hud-1 fees record
+	Required: yes when LoanPurpose = "Purchase";
+		no
+	Type: Decimal(10, 2)
+	MaxPossibleCharacters: 11
+}
+
