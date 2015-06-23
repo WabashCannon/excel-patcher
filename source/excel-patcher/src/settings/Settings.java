@@ -10,6 +10,12 @@ import java.io.Serializable;
 
 import utils.Logger;
 
+/**
+ * This class globably manages the reading and writing of settings.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class Settings implements Serializable {
 	/** Default serial UID */
 	private static final long serialVersionUID = 1L;
@@ -56,7 +62,7 @@ public class Settings implements Serializable {
 	 * @param name of setting to set
 	 * @param value the setting should have
 	 */
-	public static void setSetting(BooleanSetting name, boolean value){
+	synchronized public static void setSetting(BooleanSetting name, boolean value){
 		//Load to ensure non-null settings
 		load();
 		
@@ -73,7 +79,7 @@ public class Settings implements Serializable {
 	 * @param name of setting to set
 	 * @param value the setting should have
 	 */
-	public static void setSetting(StringSetting setting, String value){
+	synchronized public static void setSetting(StringSetting setting, String value){
 		//Load to ensure non-null settings
 		load();
 		
@@ -90,7 +96,7 @@ public class Settings implements Serializable {
 	 * @param setting of setting to fetch
 	 * @return the value of the specified setting
 	 */
-	public static boolean getSetting(BooleanSetting setting){
+	synchronized public static boolean getSetting(BooleanSetting setting){
 		load();
 		return settings.booleanSettings[setting.ordinal()];
 	}
@@ -101,7 +107,7 @@ public class Settings implements Serializable {
 	 * @param setting of setting to fetch
 	 * @return the value of the specified setting
 	 */
-	public static String getSetting(StringSetting setting){
+	synchronized public static String getSetting(StringSetting setting){
 		load();
 		return settings.stringSettings[setting.ordinal()];
 	}
@@ -111,7 +117,7 @@ public class Settings implements Serializable {
 	 * 
 	 * @return if the save was successful
 	 */
-	private static void save(){
+	synchronized private static void save(){
 		// Don't save a null object
 		if ( settings == null ){
 			return;
@@ -136,7 +142,7 @@ public class Settings implements Serializable {
 	 * 
 	 * @return the loaded settings object
 	 */
-	private static void load(){
+	synchronized private static void load(){
 		if ( settings != null ){
 			return;
 		}
