@@ -20,22 +20,11 @@ To set up your format file, use the menu to select **File→Edit format file**. 
 Installation
 ------
 ### Quick and easy
-Download the executable jar file [here](linktojar) and make sure you have Java
-installed. Run the program on from the terminal or command prompt using 
+Download and extract the latest release from [the release page](https://github.com/WabashCannon/excel-patcher/releases). Once it is extracted, navigate to the
+excel-patcher folder in terminal or command prompt and type
 
 `java -jar /path/to/the/jarfile/patcher.jar`
 
 ### From Source
-If you want to do this, you probably already know how, but this is the process I use.
-
-1. Install eclipse and the eclipse plugin EGit if you do not have them already
-2. Clone the source code in eclipse using EGit
-3. Download the Apache POI library  [here](https://poi.apache.org/download.html). Grab the binary distribution and extract it.
-4. In eclipse, modify the project's build path by right clicking the project and clicking **Build Path→Configure Build Path...**
-5. Import the following libraries, or their equivalent for your version using the **Add External Jars...** button.
-  * poi-3.11-20141221.jar
-  * poi-ooxml-3.11-20141221.jar
-  * poi-ooxml-schemas-3.11-20141221.jar
-  * xmlbeans-2.6.0.jar
-6. Now you should be done, and you can test by running it in eclipse. Just export it as an executable jar from eclipse and it will run standalone.
+If you plan to do this, you probably know most of the details already. I recomend importing the project into Eclipse using EGit to clone this repository. It should be that easy to get it up an running.
 
