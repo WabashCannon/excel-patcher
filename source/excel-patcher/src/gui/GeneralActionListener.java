@@ -6,7 +6,15 @@ import java.awt.event.ActionListener;
 import utils.FileManager;
 import utils.Logger;
 
+/**
+ * This class is an action listener used for fairly general actions
+ * within the excel patcher program.
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class GeneralActionListener implements ActionListener{
+	/** Possible action commands for the GeneralActionListener */
 	public enum ActionCommand{ 
 		CHECK, 
 		CLEAN, 

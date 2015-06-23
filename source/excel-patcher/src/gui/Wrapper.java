@@ -157,15 +157,25 @@ public class Wrapper {
 // #####################################################################################
 // ### Getters and setters
 // #####################################################################################
+	/** If the wrapper is already busy running something */
 	private boolean isBusy = false;
 	
+	/**
+	 * Sets the busy state of the wrapper
+	 * @param isBusy the new state of the wrapper
+	 */
 	synchronized public static void setBusy(boolean isBusy){
 		Wrapper.getWrapper().isBusy = isBusy;
 	}
 	
+	/**
+	 * Returns if the wrapper is busy
+	 * @return if the wrapper is busy
+	 */
 	synchronized public static boolean isBusy(){
 		return Wrapper.getWrapper().isBusy;
 	}
+	
 	/**
 	 * Sets the input file to be the specified filePath if it is valid.
 	 * If it isn't, the file path will remain unchanged.

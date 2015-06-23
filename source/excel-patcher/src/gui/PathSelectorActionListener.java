@@ -13,7 +13,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import utils.Logger;
 
+/**
+ * This class acts as the action listener for all the components in
+ * the FileBrowserPanel
+ * 
+ * @author Ashton Dyer (WabashCannon)
+ *
+ */
 public class PathSelectorActionListener implements ActionListener {
+	/** ActionCommands allowable for this action listener */
 	public enum ActionCommand{
 		SELECT_INPUT_FILE_PATH,
 		OPEN_INPUT_FILE,
@@ -54,6 +62,9 @@ public class PathSelectorActionListener implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Opens a file browser used to select the output directory
+	 */
 	private void selectOutputFile(){
 		final JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Choose an output folder...");
@@ -68,6 +79,13 @@ public class PathSelectorActionListener implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Sets the output file directory to be that of the given file
+	 * if it is valid. Refreshes the necessary text field with the new
+	 * value.
+	 * 
+	 * @param file to set as the new output directory
+	 */
 	private void setOutputFile(File file){
 		boolean changedPath = Wrapper.getWrapper().setOutputFile(file.getAbsolutePath());
 		
@@ -80,6 +98,9 @@ public class PathSelectorActionListener implements ActionListener {
 		}
 	}
 	
+	/**
+	 * Opens a browser to allow the user to select a new input file
+	 */
 	private void selectInputFile(){
 		//Get the input path field from registrar
 		final JTextField inputPathField = TextFieldRegister.getTextField(
