@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 import utils.FileManager;
 import utils.Logger;
 
-public class GlobalActionListener implements ActionListener{
+public class GeneralActionListener implements ActionListener{
 	public enum ActionCommand{ 
 		CHECK, 
 		CLEAN, 
@@ -23,7 +23,7 @@ public class GlobalActionListener implements ActionListener{
 		try {
 			actionCommand = ActionCommand.valueOf(actionCommandName);
 		} catch (IllegalArgumentException | NullPointerException e){
-			Logger.log("Error", "MenuBarActionListener cannot process action"
+			Logger.log("Error", this.getClass().getName()+" cannot process action"
 					+" command with the name "+actionCommandName );
 			return;
 		}
@@ -45,7 +45,7 @@ public class GlobalActionListener implements ActionListener{
 				System.exit(0);
 				break;
 			default:
-				Logger.log("Error", "MenuBarActionListener cannot process action"
+				Logger.log("Error", this.getClass().getName()+" cannot process action"
 						+" command with the name "+actionCommandName );
 				return;
 		}

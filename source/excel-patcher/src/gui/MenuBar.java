@@ -17,7 +17,7 @@ import utils.FileManager;
 public class MenuBar extends JMenuBar {
 	
 	public MenuBar(){
-		GlobalActionListener actionListener = new GlobalActionListener();
+		GeneralActionListener actionListener = new GeneralActionListener();
 		
 		//Init the menu bar
 		ImageIcon icon = new ImageIcon("exit.png");
@@ -31,7 +31,7 @@ public class MenuBar extends JMenuBar {
 		checkMenuItem.setMnemonic(KeyEvent.VK_E);
 		checkMenuItem.setToolTipText("Runs the check on the input file");
 		checkMenuItem.setActionCommand(
-				GlobalActionListener.ActionCommand.CHECK.name() );
+				GeneralActionListener.ActionCommand.CHECK.name() );
 		checkMenuItem.addActionListener(actionListener);
 		
 		//Create clean menu item
@@ -39,7 +39,7 @@ public class MenuBar extends JMenuBar {
 		cleanMenuItem.setMnemonic(KeyEvent.VK_E);
 		cleanMenuItem.setToolTipText("Cleans the output file of all comments and coloring");
 		cleanMenuItem.setActionCommand(
-				GlobalActionListener.ActionCommand.CLEAN.name() );
+				GeneralActionListener.ActionCommand.CLEAN.name() );
 		cleanMenuItem.addActionListener(actionListener);
 		
 		//Create edit format file menu item
@@ -47,7 +47,7 @@ public class MenuBar extends JMenuBar {
 		editFormatMenuItem.setMnemonic(KeyEvent.VK_E);
 		editFormatMenuItem.setToolTipText("Opens the format file for editing");
 		editFormatMenuItem.setActionCommand(
-				GlobalActionListener.ActionCommand.EDIT_FORMAT_FILE.name() );
+				GeneralActionListener.ActionCommand.EDIT_FORMAT_FILE.name() );
 		editFormatMenuItem.addActionListener(actionListener);
 		
 		//Create open format file manual
@@ -55,7 +55,7 @@ public class MenuBar extends JMenuBar {
 		openManualMenuItem.setMnemonic(KeyEvent.VK_E);
 		openManualMenuItem.setToolTipText("Opens the format file manual");
 		openManualMenuItem.setActionCommand(
-				GlobalActionListener.ActionCommand.OPEN_FORMAT_MANUAL.name() );
+				GeneralActionListener.ActionCommand.OPEN_FORMAT_MANUAL.name() );
 		openManualMenuItem.addActionListener(actionListener);
 		
 		//Create and add exit button
@@ -63,7 +63,7 @@ public class MenuBar extends JMenuBar {
 		exitMenuItem.setMnemonic(KeyEvent.VK_E);
 		exitMenuItem.setToolTipText("Exit application");
 		exitMenuItem.setActionCommand(
-				GlobalActionListener.ActionCommand.EXIT.name());
+				GeneralActionListener.ActionCommand.EXIT.name());
 		exitMenuItem.addActionListener(actionListener);
 		
 		//Add all the items to fileMenu

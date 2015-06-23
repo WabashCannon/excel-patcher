@@ -30,6 +30,10 @@ public class FileBrowserPanel extends JPanel {
 	
 	private static final long serialVersionUID = 1155275561612671359L;
 	
+	public enum PathFieldName{
+		INPUT_PATH_FIELD,
+		OUTPUT_DIRECTORY_FIELD
+	}
 	/**
 	 * Creates a new file browser panel with the specified input filePath and
 	 * output filePath
@@ -51,109 +55,48 @@ public class FileBrowserPanel extends JPanel {
 	private int borderSize = 5;
 	/** Each row's JPanel border */
 	Border border = new EmptyBorder(borderSize, borderSize, borderSize, borderSize);
-	/** The label border */
-	Border border2 = new EmptyBorder(borderSize, borderSize, borderSize, borderSize);
 	/**
 	 * Creates text fields and buttons
 	 */
 	private void createBrowserLines(){
+		ActionListener actionListener = new PathSelectorActionListener();
+		
+		//
+		// Begin creation of the input file path line
+		// 
+		//Create input file path panel
 		JPanel inputPanel = new JPanel();
 		inputPanel.setBorder(border);
 		inputPanel.setLayout( new BorderLayout() );
 		
+		//Create input file path label
 		JLabel inputLabel = new JLabel("Input File: ");
-		inputLabel.setBorder( border2 );
+		inputLabel.setBorder( border );
 		
+		//Create input file path text field and register it
 		final JTextField inputPathField = new JTextField();
+		TextFieldRegister.put(PathFieldName.INPUT_PATH_FIELD.name(),
+				inputPathField);
+		
+		//Set input file path text field to initial settings value
 		String inputFilePath = Settings.getSetting(StringSetting.INPUT_FILE_PATH);
 		if ( inputFilePath != null ){
 			inputPathField.setText(inputFilePath);
 		}
 		
+		//Create input file path browse button
 		JButton inputButton = new JButton("Browse");
-		inputButton.addActionListener( new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//Create and set up the file chooser
-				final JFileChooser fc = new JFileChooser();
-				fc.setDialogTitle("Choose an input excel file...");
-				FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel files", "xls", "xlsx");
-				fc.setFileFilter(filter);
-				
-				int returnVal = fc.showOpenDialog( GUI.getGUI().getContentPane() );
-				
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					//Store the file and old text
-					File file = fc.getSelectedFile();
-		            final String path = file.getAbsolutePath();
-		            final String oldText = inputPathField.getText();
-		            //Log the action
-					Logger.logVerbose("Trying to load excel file at "+path);
-					//Try to load in thread so that we don't have to wait for checking
-					Thread thread = new Thread(new Runnable(){
-						@Override
-						public void run() {
-							//Store initial text for restoring
-							SwingUtilities.invokeLater( new Runnable(){
-								@Override
-								public void run() {
-									inputPathField.setEditable(false);
-									inputPathField.setText("Checking file...");
-								}
-							});
-							
-				            
-				            final boolean success = Wrapper.getWrapper().setInputFile(path);
-				            if ( success ) {
-				            	SwingUtilities.invokeLater( new Runnable(){
-									@Override
-									public void run() {
-										Logger.logVerbose("Succesfully loaded file");
-										inputPathField.setText(path);
-										inputPathField.setEditable(true);
-									}
-				            	});
-				            } else {
-				            	//Set error message
-				            	//Set oldText back
-				            	SwingUtilities.invokeLater( new Runnable(){
-									@Override
-									public void run() {
-										inputPathField.setText("Failed to load file");
-									}
-				            	});
-				            	
-				            	//sleep
-				            	try {
-				            		Thread.sleep(3000);
-				            	} catch (Exception e){
-				            		e.printStackTrace();
-				            	}
-				            	
-				            	//Set oldText back
-				            	SwingUtilities.invokeLater( new Runnable(){
-									@Override
-									public void run() {
-										inputPathField.setText(oldText);
-										inputPathField.setEditable(true);
-									}
-				            	});
-				            }
-						}
-					});
-					thread.start();
-		        }
-			}
-		});
+		inputButton.setActionCommand(
+				PathSelectorActionListener.ActionCommand.SELECT_INPUT_FILE_PATH.name());
+		inputButton.addActionListener(actionListener);
 		
+		//Create input file open button
 		JButton inputOpenButton = new JButton("Open");
-		inputOpenButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Wrapper.getWrapper().openInputFile();
-			}
-		});
+		inputOpenButton.setActionCommand(
+				PathSelectorActionListener.ActionCommand.OPEN_INPUT_FILE.name());
+		inputOpenButton.addActionListener(actionListener);
 		
+		//Create input path buttons panel
 		JPanel inputButtonsPanel = new JPanel();
 		inputButtonsPanel.add(inputButton);
 		inputButtonsPanel.add(inputOpenButton);
@@ -164,7 +107,9 @@ public class FileBrowserPanel extends JPanel {
 		
 		add(inputPanel, BorderLayout.NORTH );
 		
-		//Output line
+		//
+		// Begin creation of the output directory line
+		// 
 		JPanel outputPanel = new JPanel();
 		outputPanel.setBorder(border);
 		outputPanel.setLayout( new BorderLayout() );
@@ -172,38 +117,29 @@ public class FileBrowserPanel extends JPanel {
 		JLabel outputLabel = new JLabel("Output Folder:");
 		outputLabel.setBorder(border);
 		
+		//Create and register the output directory field
 		final JTextField outputPathField = new JTextField();
+		TextFieldRegister.put(PathFieldName.OUTPUT_DIRECTORY_FIELD.name(), 
+				outputPathField);
+		//Set the initial output directory from the settings
 		String outputFileDirectory = Settings.getSetting(StringSetting.OUTPUT_FILE_DIRECTORY);
 		if ( outputFileDirectory != null ){
 			outputPathField.setText(outputFileDirectory);
 		}
+		
+		//Create the button to browse for an output directory
 		JButton outputButton = new JButton("Browse");
-		outputButton.addActionListener( new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final JFileChooser fc = new JFileChooser();
-				fc.setDialogTitle("Choose an output folder...");
-			    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			    fc.setAcceptAllFileFilterUsed(false);
-			    
-				int returnVal = fc.showOpenDialog( GUI.getGUI().getContentPane() );
-				
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fc.getSelectedFile();
-					outputPathField.setText(file.getAbsolutePath());
-					Wrapper.getWrapper().setOutputFile(file.getAbsolutePath());
-				}
-			}
-		});
+		outputButton.setActionCommand(
+				PathSelectorActionListener.ActionCommand.SELECT_OUTPUT_FILE_DIRECTORY.name());
+		outputButton.addActionListener(actionListener);
 		
+		//Create the button to open the output file
 		JButton outputOpenButton = new JButton("Open");
-		outputOpenButton.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Wrapper.getWrapper().openOutputFile();
-			}
-		});
+		outputOpenButton.setActionCommand(
+				PathSelectorActionListener.ActionCommand.OPEN_OUTPUT_FILE.name());
+		outputOpenButton.addActionListener(actionListener);
 		
+		//Create the panel for the output field stuff
 		JPanel outputButtonsPanel = new JPanel();
 		outputButtonsPanel.add(outputButton);
 		outputButtonsPanel.add(outputOpenButton);
