@@ -26,12 +26,9 @@ import patcher.format.FormatData;
  */
 public class Wrapper {
 	/**
-	 * Creates a new wrapper. Attempts to load former input and output paths
-	 * and inits with default settings - Should change to load and save settings
+	 * Suppress default constructor
 	 */
-	public Wrapper(){
-		//Verify the settings loaded
-		
+	private Wrapper(){
 	}
 	
 	
@@ -39,6 +36,11 @@ public class Wrapper {
 	 * Runs the main check on the excel file
 	 */
 	public void checkFile(){
+		if ( Wrapper.isBusy() ){
+			Logger.log("Error", "Wrapper is busy");
+			return;
+		}
+		
 		final String inputFilePath = Settings.getSetting(StringSetting.INPUT_FILE_PATH);
 		if ( inputFilePath == null ){
 			Logger.log("Please select an input file.");
@@ -78,18 +80,24 @@ public class Wrapper {
 				FileManager.saveExcelFile(outputFileDirectory+"/"+outputFileName, wb);
 				
 				Logger.log("Done checking file.");
+				Wrapper.setBusy(false);
 			}
-			
+	
 		});
 		
+		Wrapper.setBusy(true);
 		thread.start();
-		
 	}
 	
 	/**
 	 * Cleans the output excel file
 	 */
 	public void cleanFile(){
+		if ( Wrapper.isBusy() ){
+			Logger.log("Error", "Wrapper is busy");
+			return;
+		}
+		
 		final String outputFileDirectory = Settings.getSetting(StringSetting.OUTPUT_FILE_DIRECTORY);
 		if ( outputFileDirectory == null ){
 			Logger.log("Please select an output directory");
@@ -132,16 +140,27 @@ public class Wrapper {
 				
 				//Log completion
 				Logger.log("Done cleaning file, see the output.xlsx");
+				Wrapper.setBusy(false);
 			}
 			
 		});
 		
+		Wrapper.setBusy(true);
 		thread.start();
 	}
 	
 // #####################################################################################
 // ### Getters and setters
 // #####################################################################################
+	private boolean isBusy = false;
+	
+	synchronized public static void setBusy(boolean isBusy){
+		Wrapper.getWrapper().isBusy = isBusy;
+	}
+	
+	synchronized public static boolean isBusy(){
+		return Wrapper.getWrapper().isBusy;
+	}
 	/**
 	 * Sets the input file to be the specified filePath if it is valid.
 	 * If it isn't, the file path will remain unchanged.
