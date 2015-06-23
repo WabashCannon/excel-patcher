@@ -35,7 +35,7 @@ public class Wrapper {
 	/**
 	 * Runs the main check on the excel file
 	 */
-	public void checkFile(){
+	synchronized public void checkFile(){
 		if ( Wrapper.isBusy() ){
 			Logger.log("Error", "Wrapper is busy");
 			return;
@@ -63,24 +63,26 @@ public class Wrapper {
 
 			@Override
 			public void run() {
-				
-				Logger.log("Checking the input file");
-				
-				String formatFilePath = Settings.getSetting(StringSetting.FORMAT_FILE_PATH);
-				FormatData formatData = new FormatData(formatFilePath);
-				
-				//Load the input excel file
-				Workbook wb = FileManager.loadExcelFile(inputFilePath);
-				
-				//Create the checker
-				ExcelChecker checker = new ExcelChecker(wb, formatData);
-				checker.patchAllLoans();
-				
-				//Save the output
-				FileManager.saveExcelFile(outputFileDirectory+"/"+outputFileName, wb);
-				
-				Logger.log("Done checking file.");
-				Wrapper.setBusy(false);
+				try{
+					Logger.log("Checking the input file");
+					
+					String formatFilePath = Settings.getSetting(StringSetting.FORMAT_FILE_PATH);
+					FormatData formatData = new FormatData(formatFilePath);
+					
+					//Load the input excel file
+					Workbook wb = FileManager.loadExcelFile(inputFilePath);
+					
+					//Create the checker
+					ExcelChecker checker = new ExcelChecker(wb, formatData);
+					checker.patchAllLoans();
+					
+					//Save the output
+					FileManager.saveExcelFile(outputFileDirectory+"/"+outputFileName, wb);
+					
+					Logger.log("Done checking file.");
+				} finally {
+					Wrapper.setBusy(false);
+				}
 			}
 	
 		});
@@ -92,7 +94,7 @@ public class Wrapper {
 	/**
 	 * Cleans the output excel file
 	 */
-	public void cleanFile(){
+	synchronized public void cleanFile(){
 		if ( Wrapper.isBusy() ){
 			Logger.log("Error", "Wrapper is busy");
 			return;
@@ -121,26 +123,29 @@ public class Wrapper {
 		Thread thread = new Thread( new Runnable(){
 			@Override
 			public void run() {
-				//Log starting
-				Logger.log("Cleaning the output file");
-				
-				//Create the format data
-				String formatFilePath = Settings.getSetting(StringSetting.FORMAT_FILE_PATH);
-				FormatData formatData = new FormatData(formatFilePath);
-				
-				//Load the input excel file
-				Workbook wb = FileManager.loadExcelFile(outputFileDirectory+"/"+outputFileName);
-				
-				//Create the checker
-				ExcelChecker checker = new ExcelChecker(wb, formatData);
-				checker.cleanOutput();
-				
-				//Save the output
-				FileManager.saveExcelFile(outputFileDirectory+"/"+outputFileName, wb);
-				
-				//Log completion
-				Logger.log("Done cleaning file, see the output.xlsx");
-				Wrapper.setBusy(false);
+				try {
+					//Log starting
+					Logger.log("Cleaning the output file");
+					
+					//Create the format data
+					String formatFilePath = Settings.getSetting(StringSetting.FORMAT_FILE_PATH);
+					FormatData formatData = new FormatData(formatFilePath);
+					
+					//Load the input excel file
+					Workbook wb = FileManager.loadExcelFile(outputFileDirectory+"/"+outputFileName);
+					
+					//Create the checker
+					ExcelChecker checker = new ExcelChecker(wb, formatData);
+					checker.cleanOutput();
+					
+					//Save the output
+					FileManager.saveExcelFile(outputFileDirectory+"/"+outputFileName, wb);
+					
+					//Log completion
+					Logger.log("Done cleaning file, see the output.xlsx");
+				} finally {
+					Wrapper.setBusy(false);
+				}
 			}
 			
 		});

@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 import utils.FileManager;
 import utils.Logger;
 
-public class MenuBarActionListener implements ActionListener{
+public class GlobalActionListener implements ActionListener{
 	public enum ActionCommand{ 
 		CHECK, 
 		CLEAN, 

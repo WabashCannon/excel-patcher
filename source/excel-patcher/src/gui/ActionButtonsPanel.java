@@ -22,24 +22,19 @@ public class ActionButtonsPanel extends JPanel {
 	 */
 	public ActionButtonsPanel(){
 		setLayout( new BoxLayout(this, BoxLayout.X_AXIS) );
+		GlobalActionListener actionListener = new GlobalActionListener();
 		
 		JButton checkButton = new JButton("Check");
 		checkButton.setToolTipText("Runs the checker and produces an output excel file");
-		checkButton.addActionListener( new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Wrapper.getWrapper().checkFile();
-			}
-		});
+		checkButton.setActionCommand(
+				GlobalActionListener.ActionCommand.CHECK.name());
+		checkButton.addActionListener(actionListener);
 		
 		JButton cleanButton = new JButton("Clean");
 		cleanButton.setToolTipText("Cleans the output file of any comments and cell coloring");
-		cleanButton.addActionListener( new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Wrapper.getWrapper().cleanFile();
-			}
-		});
+		cleanButton.setActionCommand(
+				GlobalActionListener.ActionCommand.CLEAN.name());
+		cleanButton.addActionListener(actionListener);
 		
 		add(checkButton);
 		add(cleanButton);
