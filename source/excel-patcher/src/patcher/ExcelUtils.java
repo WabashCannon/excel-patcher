@@ -12,6 +12,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
+import settings.Settings;
+import settings.Settings.BooleanSetting;
 import utils.Logger;
 
 /**
@@ -29,6 +31,9 @@ public class ExcelUtils {
 	};
 	/** Indexes used for coloring excel cells. 3=Green, 5=Yellow, 2=Red */
 	private static final short[] COLOR_INDEXES = new short[]{3, 5, 2};
+	/** Indexes used for coloring excel cells when in color blind mode */
+	private static final short[] COLOR_BLIND_INDEXES = new short[]{3, 5, 4};
+	
 	//TODO: implement rbg colors for cross platform purposes (Libre doesn't seem to match Excel color indexes)
 	
 	/**
@@ -146,7 +151,14 @@ public class ExcelUtils {
 				style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
 				break;
 			default:
-				style.setFillForegroundColor(COLOR_INDEXES[urgency.ordinal()]);
+				if ( Settings.getSetting(BooleanSetting.COLOR_BLIND) ){
+					style.setFillForegroundColor(
+							COLOR_BLIND_INDEXES[urgency.ordinal()]);
+				} else {
+					style.setFillForegroundColor(
+							COLOR_INDEXES[urgency.ordinal()]);
+				}
+				
 			    style.setFillPattern(CellStyle.SOLID_FOREGROUND);
 				break;
 		}
