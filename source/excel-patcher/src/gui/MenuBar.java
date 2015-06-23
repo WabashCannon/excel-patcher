@@ -17,6 +17,8 @@ import utils.FileManager;
 public class MenuBar extends JMenuBar {
 	
 	public MenuBar(){
+		MenuBarActionListener actionListener = new MenuBarActionListener();
+		
 		//Init the menu bar
 		ImageIcon icon = new ImageIcon("exit.png");
 		
@@ -28,57 +30,41 @@ public class MenuBar extends JMenuBar {
 		JMenuItem checkMenuItem = new JMenuItem("Check", icon);
 		checkMenuItem.setMnemonic(KeyEvent.VK_E);
 		checkMenuItem.setToolTipText("Runs the check on the input file");
-		checkMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				Wrapper.getWrapper().checkFile();
-			}
-		});
+		checkMenuItem.setActionCommand(
+				MenuBarActionListener.ActionCommand.CHECK.name() );
+		checkMenuItem.addActionListener(actionListener);
 		
 		//Create clean menu item
 		JMenuItem cleanMenuItem = new JMenuItem("Clean", icon);
 		cleanMenuItem.setMnemonic(KeyEvent.VK_E);
 		cleanMenuItem.setToolTipText("Cleans the output file of all comments and coloring");
-		cleanMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				Wrapper.getWrapper().cleanFile();
-			}
-		});
+		cleanMenuItem.setActionCommand(
+				MenuBarActionListener.ActionCommand.CLEAN.name() );
+		cleanMenuItem.addActionListener(actionListener);
 		
 		//Create edit format file menu item
 		JMenuItem editFormatMenuItem = new JMenuItem("Edit format file", icon);
 		editFormatMenuItem.setMnemonic(KeyEvent.VK_E);
 		editFormatMenuItem.setToolTipText("Opens the format file for editing");
-		editFormatMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				FileManager.editFormatFile();
-				//Wrapper.getWrapper().editFormatFile();
-			}
-		});
+		editFormatMenuItem.setActionCommand(
+				MenuBarActionListener.ActionCommand.EDIT_FORMAT_FILE.name() );
+		editFormatMenuItem.addActionListener(actionListener);
 		
 		//Create open format file manual
 		JMenuItem openManualMenuItem = new JMenuItem("Open format file manual", icon);
 		openManualMenuItem.setMnemonic(KeyEvent.VK_E);
 		openManualMenuItem.setToolTipText("Opens the format file manual");
-		openManualMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				FileManager.openFormatManual();
-			}
-		});
+		openManualMenuItem.setActionCommand(
+				MenuBarActionListener.ActionCommand.OPEN_FORMAT_MANUAL.name() );
+		openManualMenuItem.addActionListener(actionListener);
 		
 		//Create and add exit button
 		JMenuItem exitMenuItem = new JMenuItem("Exit", icon);
 		exitMenuItem.setMnemonic(KeyEvent.VK_E);
 		exitMenuItem.setToolTipText("Exit application");
-		exitMenuItem.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent event) {
-		        System.exit(0);
-		    }
-		});
+		exitMenuItem.setActionCommand(
+				MenuBarActionListener.ActionCommand.EXIT.name());
+		exitMenuItem.addActionListener(actionListener);
 		
 		//Add all the items to fileMenu
 		fileMenu.add(checkMenuItem);
