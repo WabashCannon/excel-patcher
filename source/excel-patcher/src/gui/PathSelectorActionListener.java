@@ -4,6 +4,8 @@ import gui.GeneralActionListener.ActionCommand;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
@@ -11,6 +13,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import settings.Settings;
+import settings.Settings.StringSetting;
 import utils.Logger;
 
 /**
@@ -20,12 +24,14 @@ import utils.Logger;
  * @author Ashton Dyer (WabashCannon)
  *
  */
-public class PathSelectorActionListener implements ActionListener {
+public class PathSelectorActionListener implements ActionListener, FocusListener {
 	/** ActionCommands allowable for this action listener */
 	public enum ActionCommand{
 		SELECT_INPUT_FILE_PATH,
+		SET_INPUT_FILE_PATH,
 		OPEN_INPUT_FILE,
 		SELECT_OUTPUT_FILE_DIRECTORY,
+		SET_OUTPUT_FILE_DIRECTORY,
 		OPEN_OUTPUT_FILE
 	}
 
@@ -46,11 +52,23 @@ public class PathSelectorActionListener implements ActionListener {
 			case SELECT_INPUT_FILE_PATH:
 				selectInputFile();
 				break;
+			case SET_INPUT_FILE_PATH:
+				JTextField inputPathField = TextFieldRegister.getTextField(
+						FileBrowserPanel.PathFieldName.INPUT_PATH_FIELD.name());
+				File inputFile = new File(inputPathField.getText());
+				setInputFile(inputFile);
+				break;
 			case OPEN_INPUT_FILE:
 				Wrapper.getWrapper().openInputFile();
 				break;
 			case SELECT_OUTPUT_FILE_DIRECTORY:
 				selectOutputFile();
+				break;
+			case SET_OUTPUT_FILE_DIRECTORY:
+				JTextField outputDirectoryField = TextFieldRegister.getTextField(
+						FileBrowserPanel.PathFieldName.OUTPUT_DIRECTORY_FIELD.name());
+				File outputDirectory = new File(outputDirectoryField.getText());
+				setOutputFile(outputDirectory);
 				break;
 			case OPEN_OUTPUT_FILE:
 				Wrapper.getWrapper().openOutputFile();
@@ -87,14 +105,12 @@ public class PathSelectorActionListener implements ActionListener {
 	 * @param file to set as the new output directory
 	 */
 	private void setOutputFile(File file){
-		boolean changedPath = Wrapper.getWrapper().setOutputFile(file.getAbsolutePath());
+		Wrapper.getWrapper().setOutputFile(file.getAbsolutePath());
 		
-		if ( changedPath ){
-			String fieldName = FileBrowserPanel.PathFieldName.OUTPUT_DIRECTORY_FIELD.name();
-			JTextField field = TextFieldRegister.getTextField(fieldName);
-			if ( field != null ){
-				field.setText(file.getAbsolutePath());
-			}
+		String fieldName = FileBrowserPanel.PathFieldName.OUTPUT_DIRECTORY_FIELD.name();
+		JTextField field = TextFieldRegister.getTextField(fieldName);
+		if ( field != null ){
+			field.setText(Settings.getSetting(StringSetting.OUTPUT_FILE_DIRECTORY));
 		}
 	}
 	
@@ -117,64 +133,95 @@ public class PathSelectorActionListener implements ActionListener {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			//Store the file and old text
 			File file = fc.getSelectedFile();
-            final String path = file.getAbsolutePath();
-            final String oldText = inputPathField.getText();
-            //Log the action
-			Logger.logVerbose("Trying to load excel file at "+path);
-			//Try to load in thread so that we don't have to wait for checking
-			Thread thread = new Thread(new Runnable(){
-				@Override
-				public void run() {
-					//Store initial text for restoring
-					SwingUtilities.invokeLater( new Runnable(){
-						@Override
-						public void run() {
-							inputPathField.setEditable(false);
-							inputPathField.setText("Checking file...");
-						}
-					});
-					
-		            
-		            final boolean success = Wrapper.getWrapper().setInputFile(path);
-		            if ( success ) {
-		            	SwingUtilities.invokeLater( new Runnable(){
-							@Override
-							public void run() {
-								Logger.logVerbose("Succesfully loaded file");
-								inputPathField.setText(path);
-								inputPathField.setEditable(true);
-							}
-		            	});
-		            } else {
-		            	//Set error message
-		            	//Set oldText back
-		            	SwingUtilities.invokeLater( new Runnable(){
-							@Override
-							public void run() {
-								inputPathField.setText("Failed to load file");
-							}
-		            	});
-		            	
-		            	//sleep
-		            	try {
-		            		Thread.sleep(3000);
-		            	} catch (Exception e){
-		            		e.printStackTrace();
-		            	}
-		            	
-		            	//Set oldText back
-		            	SwingUtilities.invokeLater( new Runnable(){
-							@Override
-							public void run() {
-								inputPathField.setText(oldText);
-								inputPathField.setEditable(true);
-							}
-		            	});
-		            }
-				}
-			});
-			thread.start();
+            setInputFile(file);
         }
 	}
+	
+	private void setInputFile(File file){
+		//Get the input path field from registrar
+		final JTextField inputPathField = TextFieldRegister.getTextField(
+				FileBrowserPanel.PathFieldName.INPUT_PATH_FIELD.name() );
+		
+		final String path = file.getAbsolutePath();
+        
+		//Try to load in thread so that we don't have to wait for checking
+		Thread thread = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				//Store initial text for restoring
+				SwingUtilities.invokeLater( new Runnable(){
+					@Override
+					public void run() {
+						inputPathField.setEditable(false);
+						inputPathField.setText("Checking file...");
+					}
+				});
+				
+	            
+	            final boolean success = Wrapper.getWrapper().setInputFile(path);
+	            if ( success ) {
+	            	SwingUtilities.invokeLater( new Runnable(){
+						@Override
+						public void run() {
+							Logger.logVerbose("Succesfully loaded file");
+							inputPathField.setText(path);
+							inputPathField.setEditable(true);
+						}
+	            	});
+	            } else {
+	            	//Set error message
+	            	//Set oldText back
+	            	SwingUtilities.invokeLater( new Runnable(){
+						@Override
+						public void run() {
+							inputPathField.setText("Failed to load file");
+						}
+	            	});
+	            	
+	            	//sleep
+	            	try {
+	            		Thread.sleep(3000);
+	            	} catch (Exception e){
+	            		e.printStackTrace();
+	            	}
+	            	
+	            	//Set oldText back
+	            	SwingUtilities.invokeLater( new Runnable(){
+						@Override
+						public void run() {
+							inputPathField.setText(Settings.getSetting(StringSetting.INPUT_FILE_PATH));
+							inputPathField.setEditable(true);
+						}
+	            	});
+	            }
+			}
+		});
+		thread.start();
+	}
 
+	@Override
+	public void focusGained(FocusEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void focusLost(FocusEvent event) {
+		JTextField inputPathField = TextFieldRegister.getTextField(
+				FileBrowserPanel.PathFieldName.INPUT_PATH_FIELD.name());
+		String inputFileName = Settings.getSetting(StringSetting.INPUT_FILE_PATH);
+		if ( !inputPathField.getText().equals(inputFileName) ){
+			File inputFile = new File(inputPathField.getText());
+			setInputFile(inputFile);
+		}
+			
+		
+		JTextField outputDirectoryField = TextFieldRegister.getTextField(
+				FileBrowserPanel.PathFieldName.OUTPUT_DIRECTORY_FIELD.name());
+		String outputDirectory = Settings.getSetting(StringSetting.OUTPUT_FILE_DIRECTORY);
+		if ( !outputDirectoryField.getText().equals(outputDirectory) ){
+			File outputDirectoryFile = new File(outputDirectoryField.getText());
+			setOutputFile(outputDirectoryFile);
+		}
+	}
 }

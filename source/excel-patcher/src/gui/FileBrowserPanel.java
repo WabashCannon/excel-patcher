@@ -59,7 +59,7 @@ public class FileBrowserPanel extends JPanel {
 	 * Creates text fields and buttons
 	 */
 	private void createBrowserLines(){
-		ActionListener actionListener = new PathSelectorActionListener();
+		PathSelectorActionListener actionListener = new PathSelectorActionListener();
 		
 		//
 		// Begin creation of the input file path line
@@ -75,6 +75,10 @@ public class FileBrowserPanel extends JPanel {
 		
 		//Create input file path text field and register it
 		final JTextField inputPathField = new JTextField();
+		inputPathField.setActionCommand(
+				PathSelectorActionListener.ActionCommand.SET_INPUT_FILE_PATH.name());
+		inputPathField.addActionListener(actionListener);
+		inputPathField.addFocusListener(actionListener);
 		TextFieldRegister.put(PathFieldName.INPUT_PATH_FIELD.name(),
 				inputPathField);
 		
@@ -119,6 +123,10 @@ public class FileBrowserPanel extends JPanel {
 		
 		//Create and register the output directory field
 		final JTextField outputPathField = new JTextField();
+		outputPathField.setActionCommand(
+				PathSelectorActionListener.ActionCommand.SET_OUTPUT_FILE_DIRECTORY.name());
+		outputPathField.addActionListener(actionListener);
+		outputPathField.addFocusListener(actionListener);
 		TextFieldRegister.put(PathFieldName.OUTPUT_DIRECTORY_FIELD.name(), 
 				outputPathField);
 		//Set the initial output directory from the settings
