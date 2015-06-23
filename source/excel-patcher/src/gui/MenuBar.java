@@ -12,10 +12,12 @@ import javax.swing.JMenuItem;
 
 import settings.Settings;
 import settings.Settings.BooleanSetting;
-import utils.FileManager;
 
 public class MenuBar extends JMenuBar {
 	
+	/** Default Serial versuion UID */
+	private static final long serialVersionUID = 1L;
+
 	public MenuBar(){
 		GeneralActionListener actionListener = new GeneralActionListener();
 		

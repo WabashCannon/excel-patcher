@@ -9,7 +9,6 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import patcher.format.conditional.Specification;
 import utils.Logger;
-import utils.Utils;
 
 /**
  * This class is a container for the format requirements of a single column

@@ -140,6 +140,7 @@ public class DependencyDigraph {
 		 * @param parent to remove from children
 		 * @return if the node was removed
 		 */
+		@SuppressWarnings("unused")
 		private boolean removeParent(Node parent){
 			return parents.remove(parent);
 		}
@@ -166,6 +167,7 @@ public class DependencyDigraph {
 		 * @param child to remove from children
 		 * @return if the node was removed
 		 */
+		@SuppressWarnings("unused")
 		private boolean removeChild(Node child){
 			return children.remove(child);
 		}

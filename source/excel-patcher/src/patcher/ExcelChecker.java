@@ -1,10 +1,8 @@
 package patcher;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -606,20 +604,6 @@ public class ExcelChecker {
 		}
 		if ( commentOnFaultyCells ){
 			ExcelUtils.addCellComment(cell, comment);
-		}
-	}
-	
-	/**
-	 * Wrapper method to call ExcelUtils' comment method if the settings permit 
-	 * it.
-	 * 
-	 * @param cell to comment on
-	 * @param comments to add to the cell
-	 * @param urgency used in coloring the cell
-	 */
-	private void addCellComment(Cell cell, Vector<String> comments, UrgencyLevel urgency){
-		for ( String comment : comments ){
-			addCellComment(cell, comment, urgency);
 		}
 	}
 }

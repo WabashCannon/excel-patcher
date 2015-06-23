@@ -9,7 +9,6 @@ import java.util.Vector;
 
 import patcher.format.conditional.Specification;
 import utils.Logger;
-import utils.Utils;
 
 public class FormatData {
 	/** The finalized set of minimal dependencies for this sheet */

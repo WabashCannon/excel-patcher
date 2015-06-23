@@ -2,19 +2,10 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import utils.FileManager;
 import utils.Logger;
 import utils.Logger.LogLevel;
 
@@ -37,7 +28,6 @@ public class GUI extends JFrame {
 		JPanel header = new JPanel();
 		header.setLayout(new BorderLayout());
 		
-		Wrapper wrap = Wrapper.getWrapper();
 		FileBrowserPanel fbPanel = new FileBrowserPanel();
 		header.add(fbPanel, BorderLayout.NORTH);
 		
